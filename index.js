@@ -5,7 +5,7 @@ const util = require('util');
 const config = require('./config/config');
 const app = require('./config/express');
 
-const debug = require('debug')('express-mongoose-es6-rest-api:index');
+const debug = require('debug')('hl7-telescoper-api-server:index');
 
 // make bluebird default Promise
 Promise = require('bluebird'); // eslint-disable-line no-global-assign

@@ -1,8 +1,8 @@
 {
-  "name": "express-mongoose-es6-rest-api",
+  "name": "hl7-telescoper-api-server",
   "version": "5.0.0",
-  "description": "A Boilerplate application for building REST APIs using express, mongoose in ES6 with code coverage",
-  "author": "Kunal Kapadia <kunalkapadia12@gmail.com>",
+  "description": "A server side application for the Amida HL7-Telescoper Project",
+  "author": "Perry Ogwuche <perry@amida.com>",
   "main": "index.js",
   "private": false,
   "engines": {
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "start:debug": "cross-env DEBUG=express-mongoose-es6-rest-api:* yarn start",
+    "start:debug": "cross-env DEBUG=hl7-telescoper-api-server:* yarn start",
     "lint": "esw *.js server config --color",
     "lint:watch": "yarn lint -- --watch",
     "precommit": "yarn lint && yarn test",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:KunalKapadia/express-mongoose-es6-rest-api.git"
+    "url": "git@github.com:amida-tech/hl7-telescoper-api-server.git"
   },
   "keywords": [
     "express",
