@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => { cb(null, 'data/hl7-uploads'); },
-  filename: (req, file, cb) => (cb(null, `${file.originalname}-${Date.now()}`))
+  filename: (req, file, cb) => (cb(null, `${file.originalname}`))
 });
 
 const upload = multer({ storage });
@@ -22,9 +22,10 @@ function newHl7File(fileName) {
 function loadFile(req, res) {
   fs.readFile(`data/hl7-uploads/${req.params.fileName}`, 'utf8', (err, data) => {
     if (err) {
-      throw 'ERROR! File could not be retrieved!';
+      const error = new APIError(err, httpStatus.BAD_REQUEST);
+      return res.status(error.status).json(err.message);
     }
-    return res.json(data);
+    return res.status(httpStatus.OK).json(data);
   });
 }
 

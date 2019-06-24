@@ -30,4 +30,16 @@ describe('## File Upload', () => {
         .catch(done);
     });
   });
+
+  describe('# GET /api/hl7/:fileName', () => {
+    it('should retrieve a file stored in /data/hl7-uploads', (done) => {
+      request(app)
+        .get('/api/hl7/500HL7Messages.txt')
+        .expect(httpStatus.OK)
+        .then(() => {
+          done();
+        })
+        .catch(done);
+    });
+  });
 });
