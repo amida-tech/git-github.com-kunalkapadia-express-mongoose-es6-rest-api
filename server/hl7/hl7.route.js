@@ -7,4 +7,7 @@ router.route('/upload')
   /** POST /api/hl7/upload - Upload new HL7 document */
   .post(hl7Ctrl.upload.single('hl7-message'), hl7Ctrl.uploadFile);
 
+router.route('/:fileName')
+  .get(hl7Ctrl.loadFile);
+
 module.exports = router;
