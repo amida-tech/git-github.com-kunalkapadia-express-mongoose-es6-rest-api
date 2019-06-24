@@ -20,10 +20,8 @@ function newHl7File(fileName) {
 }
 
 function loadFile(req, res) {
-  // console.log(req.params.fileName);
   fs.readFile(`data/hl7-uploads/${req.params.fileName}`, 'utf8', (err, data) => {
     if (err) {
-        // eslint-disable-next-line no-throw-literal
       throw 'ERROR! File could not be retrieved!';
     }
     return res.json(data);
