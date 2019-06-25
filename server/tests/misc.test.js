@@ -49,7 +49,7 @@ describe('## Misc', () => {
       request(app)
         .post('/api/users/signup')
         .send({
-          password: 'temp',
+          password: 'temp12345',
           email: 'temp@gmail.com'
         })
         .expect(httpStatus.BAD_REQUEST)
