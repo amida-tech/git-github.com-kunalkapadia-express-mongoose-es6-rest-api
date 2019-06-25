@@ -50,5 +50,6 @@ node_modules
 # .env
 .env
 
-# Ignore everything in the data folder for now
-data/*
+# Ignore everything in the data/hl7-uploads folder for now
+data/hl7-uploads/*
+!data/hl7-uploads/.gitkeep
