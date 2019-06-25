@@ -47,9 +47,10 @@ describe('## Misc', () => {
 
     it('should handle express validation error - username is required', (done) => {
       request(app)
-        .post('/api/users')
+        .post('/api/users/signup')
         .send({
-          mobileNumber: '1234567890'
+          password: 'temp',
+          email: 'temp@gmail.com'
         })
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {

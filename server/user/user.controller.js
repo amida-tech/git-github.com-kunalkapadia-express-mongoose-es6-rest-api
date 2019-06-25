@@ -1,4 +1,5 @@
 const User = require('./user.model');
+const bcrypt = require('bcrypt');
 
 /**
  * Load user and append to req.
@@ -23,19 +24,57 @@ function get(req, res) {
 /**
  * Create new user
  * @property {string} req.body.username - The username of user.
- * @property {string} req.body.mobileNumber - The mobileNumber of user.
+ * @property {string} req.body.email - The email address of user.
+ * @property {string} req.body.password - The password of user.
  * @returns {User}
  */
 function create(req, res, next) {
-  const user = new User({
-    username: req.body.username,
-    mobileNumber: req.body.mobileNumber
+  // First check if username or email already in database
+  User.find({
+    $or: [
+      { email: req.body.email },
+      { username: req.body.username }
+      // eslint-disable-next-line consistent-return
+    ]
+    // eslint-disable-next-line consistent-return
+  }, (err, docs) => {
+    // eslint-disable-next-line eqeqeq
+    if (docs.length >= 1) {
+      if (docs[0].email === req.body.email) {
+        return res.status(409)
+          .json({
+            message: 'Account with email already exists!'
+          });
+        // eslint-disable-next-line eqeqeq
+      } else if (docs[0].username === req.body.username) {
+        return res.status(409)
+          .json({
+            message: 'Account with username already exists!'
+          });
+      }
+    }
+    // If user does not exist, hash password
+    // eslint-disable-next-line consistent-return
+    bcrypt.hash(req.body.password, 10, (error, hash) => {
+      if (error) {
+        return res.status(500)
+          .json({
+            error
+          });
+      }
+      const user = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password: hash
+      });
+      // Save user
+      user.save()
+        .then(savedUser => res.json(savedUser))
+        .catch(e => next(e));
+    });
   });
-
-  user.save()
-    .then(savedUser => res.json(savedUser))
-    .catch(e => next(e));
 }
+
 
 /**
  * Update existing user
@@ -46,7 +85,7 @@ function create(req, res, next) {
 function update(req, res, next) {
   const user = req.user;
   user.username = req.body.username;
-  user.mobileNumber = req.body.mobileNumber;
+  user.email = req.body.email;
 
   user.save()
     .then(savedUser => res.json(savedUser))
