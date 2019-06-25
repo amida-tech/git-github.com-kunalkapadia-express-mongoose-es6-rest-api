@@ -14,8 +14,8 @@ const upload = multer({ storage });
  * Creates a new Mongoose object for the rile to save in the DB
  * We do this mainly to avoid the (new-cap) rule error from ES6
  */
-function newHl7File(fileName) {
-  return new HL7({ fileName });
+function newHl7File(filename) {
+  return new HL7({ filename });
 }
 
 /**
@@ -28,7 +28,7 @@ function uploadFile(req, res) {
   hl7File.save()
     .catch(() => {
       const err = new APIError(`Error: Failed to save file ${req.file.filename}`, httpStatus.BAD_REQUEST);
-      res.status(err.status).json(err.message);
+      return res.status(err.status).json(err.message);
     });
   return res.status(httpStatus.CREATED).json(hl7File);
 }
