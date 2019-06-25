@@ -49,3 +49,6 @@ node_modules
 
 # .env
 .env
+
+# Ignore everything in the data folder for now
+data
