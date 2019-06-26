@@ -25,7 +25,24 @@ function loadFile(req, res) {
       const error = new APIError(err, httpStatus.BAD_REQUEST);
       return res.status(error.status).json(err.message);
     }
-    return res.status(httpStatus.OK).json(data);
+    const tempArray = data
+      .replace(/\n\r/g, '\n')
+      .replace(/\r/g, '\n')
+      .split(/\n{2,}/g);
+    const messageArray = [];
+    let i;
+    // eslint-disable-next-line no-plusplus
+    for (i = 0; i < tempArray.length; i++) {
+      messageArray.push(`rawMessage:${tempArray[i]}\n parsedMessage:Parsed HL7 Message Will Go Here!`);
+    }
+    const hl7 = {
+      fileName: req.params.fileName,
+      dateAdded: Date.now(),
+      messages: messageArray
+    };
+
+
+    return res.status(httpStatus.OK).json(hl7);
   });
 }
 
