@@ -11,12 +11,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage,
   fileFilter(req, file, cb) {
     if (!file) {
-      cb(new Error('No file found'), false);
+      cb(new Error('No file found'), false); //TODO: Change to return 400 or something if no file found
     }
     if (file.originalname.endsWith('.txt')) {
       cb(null, true);
     } else {
-      cb(new Error('File type not supported'), false);
+      cb(new Error('File type not supported'), false); //TODO: Change to return 400 or something if wrong extensiom is given
     }
   }
 });

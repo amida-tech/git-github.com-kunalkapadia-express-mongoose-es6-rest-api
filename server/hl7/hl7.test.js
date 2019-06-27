@@ -18,12 +18,24 @@ after((done) => {
 });
 
 describe('## File Upload', () => {
+
   describe('# POST /api/hl7/upload', () => {
     it('should upload a file to /data/hl7-uploads', (done) => {
       request(app)
         .post('/api/hl7/upload')
         .attach('hl7-message', 'data/hl7-sample/500HL7Messages.txt')
         .expect(httpStatus.CREATED)
+        .then(() => {
+          done();
+        })
+        .catch(done);
+    });
+
+    it('Should not upload a file that it not a .txt extension', (done) => {
+      request(app)
+        .post('/api/hl7/upload')
+        .attach('hl7-message', 'data/hl7-sample/test.json')
+        .expect(httpStatus.INTERNAL_SERVER_ERROR) // TODO: You shouldn't be testing for a sever error here, test for 400
         .then(() => {
           done();
         })
