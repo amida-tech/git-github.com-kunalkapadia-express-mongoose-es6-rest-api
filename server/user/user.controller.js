@@ -1,5 +1,7 @@
 const User = require('./user.model');
 const bcrypt = require('bcrypt');
+const APIError = require('../helpers/APIError');
+const httpStatus = require('http-status');
 
 /**
  * Load user and append to req.
@@ -7,7 +9,8 @@ const bcrypt = require('bcrypt');
 function load(req, res, next, id) {
   User.get(id)
     .then((user) => {
-      req.user = user; // eslint-disable-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign
+      req.user = user;
       return next();
     })
     .catch(e => next(e));
@@ -34,33 +37,24 @@ function create(req, res, next) {
     $or: [
       { email: req.body.email },
       { username: req.body.username }
-      // eslint-disable-next-line consistent-return
+
     ]
-    // eslint-disable-next-line consistent-return
+
   }, (err, docs) => {
-    // eslint-disable-next-line eqeqeq
     if (docs.length >= 1) {
       if (docs[0].email === req.body.email) {
-        return res.status(409)
-          .json({
-            message: 'Account with email already exists!'
-          });
-        // eslint-disable-next-line eqeqeq
-      } else if (docs[0].username === req.body.username) {
-        return res.status(409)
-          .json({
-            message: 'Account with username already exists!'
-          });
+        const error = new APIError(`Error: Account with email already exists! ${req.body.email}`, httpStatus.CONFLICT);
+        next(error);
+      } else {
+        const error = new APIError(`Error: Account with username already exists! ${req.body.username}`, httpStatus.CONFLICT);
+        next(error);
       }
     }
     // If user does not exist, hash password
-    // eslint-disable-next-line consistent-return
     bcrypt.hash(req.body.password, 10, (error, hash) => {
       if (error) {
-        return res.status(500)
-          .json({
-            error
-          });
+        const error2 = new APIError('Error: Password hashing failed!', httpStatus.INTERNAL_SERVER_ERROR);
+        next(error2);
       }
       const user = new User({
         username: req.body.username,
@@ -68,7 +62,7 @@ function create(req, res, next) {
         password: hash
       });
       // Save user
-      user.save()
+      return user.save()
         .then(savedUser => res.json(savedUser))
         .catch(e => next(e));
     });
