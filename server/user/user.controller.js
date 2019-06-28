@@ -24,6 +24,7 @@ function get(req, res) {
   return res.json(req.user);
 }
 
+
 /**
  * Create new user
  * @property {string} req.body.username - The username of user.
@@ -63,7 +64,8 @@ function create(req, res, next) {
       });
       // Save user
       return user.save()
-        .then(savedUser => res.json(savedUser))
+        .then(savedUser =>
+          res.json(savedUser))
         .catch(e => next(e));
     });
   });

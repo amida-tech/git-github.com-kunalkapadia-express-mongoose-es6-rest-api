@@ -39,9 +39,8 @@ describe('## User APIs', () => {
           expect(res.body.email)
             .to
             .equal(user.email);
-          // eslint-disable-next-line no-shadow
-          bcrypt.compare(res.body.password, user.password, (err, res) => {
-            expect(res);
+          bcrypt.compare(res.body.password, user.password, (err, response) => {
+            expect(response);
           });
           user = res.body;
           done();
