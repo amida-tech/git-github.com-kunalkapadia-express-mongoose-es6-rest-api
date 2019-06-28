@@ -1,14 +1,32 @@
 const multer = require('multer');
 const HL7 = require('./hl7.model');
+const ParsedHl7 = require('./hl7.model');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => { cb(null, 'data/hl7-uploads'); },
-  filename: (req, file, cb) => (cb(null, `${file.originalname}-${Date.now()}`))
+  filename: (req, file, cb) => {
+
+    // validate the file
+    // read the file
+    // parse the file
+    // save the parsed data to ParsedHl7MessageSchema
+    // save the file name along with parsed ID's to HL7FileUploadSchema
+    // use the file name to save the file to the file system
+    saveFileToDB(file.originalname)
+
+    cb(null, `${file.originalname}-${Date.now()}`);
+  }
 });
 
 const upload = multer({ storage });
+
+
+function validateFile(file) {
+  
+
+}
 
 /**
  * Creates a new Mongoose object for the rile to save in the DB
@@ -16,6 +34,10 @@ const upload = multer({ storage });
  */
 function newHl7File(filename) {
   return new HL7({ filename });
+}
+
+function newParsedHl7Message(associatedFilename, rawMessage) {
+  return new ParsedHl7({ associatedFilename, rawMessage });
 }
 
 /**
@@ -31,6 +53,16 @@ function uploadFile(req, res) {
       return res.status(err.status).json(err.message);
     });
   return res.status(httpStatus.CREATED).json(hl7File);
+}
+
+function saveFileToDB(associatedFilename, rawMessage) {
+  const parsedMessage = newParsedHl7Message(associatedFilename, rawMessage);
+
+  parsedMessage.save()
+    .catch(() => {
+      return { statusCode: 400, message: 'Did not save' };
+    });
+  return { statusCode: 200, file: hl7File  };
 }
 
 module.exports = { uploadFile, upload };
