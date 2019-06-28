@@ -93,9 +93,9 @@ describe('## User APIs', () => {
           expect(res.body.username)
             .to
             .equal('KK');
-          expect(res.body.mobileNumber)
+          expect(res.body.email)
             .to
-            .equal(user.mobileNumber);
+            .equal(user.email);
           done();
         })
         .catch(done);
@@ -143,9 +143,9 @@ describe('## User APIs', () => {
           expect(res.body.username)
             .to
             .equal('KK');
-          expect(res.body.mobileNumber)
+          expect(res.body.email)
             .to
-            .equal(user.mobileNumber);
+            .equal(user.email);
           done();
         })
         .catch(done);
