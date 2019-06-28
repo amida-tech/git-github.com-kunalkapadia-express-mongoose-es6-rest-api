@@ -46,16 +46,17 @@ function create(req, res, next) {
       if (docs[0].email === req.body.email) {
         const error = new APIError(`Error: Account with email already exists! ${req.body.email}`, httpStatus.CONFLICT);
         next(error);
-      } else {
-        const error = new APIError(`Error: Account with username already exists! ${req.body.username}`, httpStatus.CONFLICT);
-        next(error);
+        return;
       }
+      const error = new APIError(`Error: Account with username already exists! ${req.body.username}`, httpStatus.CONFLICT);
+      next(error);
+      return;
     }
     // If user does not exist, hash password
     bcrypt.hash(req.body.password, 10, (error, hash) => {
       if (error) {
         const error2 = new APIError('Error: Password hashing failed!', httpStatus.INTERNAL_SERVER_ERROR);
-        next(error2);
+        return next(error2);
       }
       const user = new User({
         username: req.body.username,
