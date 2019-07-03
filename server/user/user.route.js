@@ -7,7 +7,9 @@ const router = new express.Router();
 
 router.route('/')
   /** GET /api/users - Get list of users */
-  .get(userCtrl.list);
+  .get(userCtrl.list)
+/** POST /api/users - Create new user through signup */
+  .post(validate(paramValidation.createUser), userCtrl.create);
 
 router.route('/:userId')
   /** GET /api/users/:userId - Get user */
@@ -19,9 +21,6 @@ router.route('/:userId')
   /** DELETE /api/users/:userId - Delete user */
   .delete(userCtrl.remove);
 
-router.route('/signup')
-/** POST /api/users - Create new user */
-  .post(validate(paramValidation.createUser), userCtrl.create);
 
 /** Load user when API with userId route parameter is hit */
 router.param('userId', userCtrl.load);

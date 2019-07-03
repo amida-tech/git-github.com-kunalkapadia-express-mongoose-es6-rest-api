@@ -3,6 +3,7 @@ const HL7 = require('./hl7.model');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => { cb(null, 'data/hl7-uploads'); },
   filename: (req, file, cb) => (cb(null, `${file.originalname}-${Date.now()}`))
@@ -33,4 +34,5 @@ function uploadFile(req, res, next) {
     });
 }
 
-module.exports = { uploadFile, upload };
+
+module.exports = { uploadFile, upload, };

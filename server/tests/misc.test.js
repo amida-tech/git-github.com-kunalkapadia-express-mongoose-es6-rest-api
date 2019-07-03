@@ -47,7 +47,7 @@ describe('## Misc', () => {
 
     it('should handle express validation error - username is required', (done) => {
       request(app)
-        .post('/api/users/signup')
+        .post('/api/users')
         .send({
           password: 'temp12345',
           email: 'temp@gmail.com'

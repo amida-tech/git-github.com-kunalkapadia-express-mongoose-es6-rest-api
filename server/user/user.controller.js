@@ -5,6 +5,7 @@ const httpStatus = require('http-status');
 
 /**
  * Load user and append to req.
+ * TODO: 500 when user doesnt exist
  */
 function load(req, res, next, id) {
   User.get(id)
@@ -33,6 +34,9 @@ function get(req, res) {
  * @returns {User}
  */
 function create(req, res, next) {
+  /*
+  TODO: Need to filter out password in login/signup express log
+   */
   // First check if username or email already in database
   User.find({
     $or: [

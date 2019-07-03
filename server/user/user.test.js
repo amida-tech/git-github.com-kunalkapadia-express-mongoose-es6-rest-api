@@ -26,10 +26,10 @@ describe('## User APIs', () => {
     password: 'testPassword1'
   };
 
-  describe('# POST /api/users/signup', () => {
+  describe('# POST /api/users', () => {
     it('should create a new user through signing up', (done) => {
       request(app)
-        .post('/api/users/signup')
+        .post('/api/users')
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
