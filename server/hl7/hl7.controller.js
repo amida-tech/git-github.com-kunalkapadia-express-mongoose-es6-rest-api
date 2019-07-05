@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage,
   fileFilter(req, file, cb) {
     if (!file) {
-      cb(new Error('No file found'), false); //TODO: Change to return 400 or something if no file found
+      cb(new APIError('No file found', httpStatus.BAD_REQUEST), false);
     }
     if (file.originalname.endsWith('.txt')) {
       cb(null, true);
