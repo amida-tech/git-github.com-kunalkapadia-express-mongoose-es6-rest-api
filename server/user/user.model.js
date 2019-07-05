@@ -11,10 +11,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  mobileNumber: {
+  email: {
     type: String,
     required: true,
-    match: [/^[1-9][0-9]{9}$/, 'The value of path {PATH} ({VALUE}) is not a valid mobile number.']
+    // eslint-disable-next-line no-useless-escape
+    match: [/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'The value of path {PATH} ({VALUE}) is not a valid email.']
+  },
+  password: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,

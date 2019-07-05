@@ -3,6 +3,7 @@ const HL7 = require('./hl7.model');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => { cb(null, 'data/hl7-uploads'); },
   filename: (req, file, cb) => (cb(null, `${file.originalname}-${Date.now()}`))
@@ -22,15 +23,16 @@ function newHl7File(fileName) {
  * Utilizing Multer, this function receives a file as a request, and saves the generated file name
  * to the DB.
  */
-function uploadFile(req, res) {
+function uploadFile(req, res, next) {
   const hl7File = newHl7File(req.file.filename);
 
   hl7File.save()
+    .then(() => res.status(httpStatus.CREATED).json(hl7File))
     .catch(() => {
       const err = new APIError(`Error: Failed to save file ${req.file.filename}`, httpStatus.BAD_REQUEST);
-      res.status(err.status).json(err.message);
+      next(err);
     });
-  return res.status(httpStatus.CREATED).json(hl7File);
 }
 
-module.exports = { uploadFile, upload };
+
+module.exports = { uploadFile, upload, };

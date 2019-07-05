@@ -22,7 +22,7 @@ describe('## File Upload', () => {
     it('should upload a file to /data/hl7-uploads', (done) => {
       request(app)
         .post('/api/hl7/upload')
-        .attach('hl7-message', 'data/hl7-sample/500HL7Messages.txt')
+        .attach('hl7-message', 'data/hl7-sample/test.txt')
         .expect(httpStatus.CREATED)
         .then(() => {
           done();
