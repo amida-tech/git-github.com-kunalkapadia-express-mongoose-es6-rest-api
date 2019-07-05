@@ -1,6 +1,5 @@
 const multer = require('multer');
-const Hl7FileUpload = require('./models/file-upload');
-const ParsedHl7 = require('./models/parsed-message');
+const Message = require('./hl7.model');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 const fs = require('fs');
@@ -16,22 +15,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
-/**
- * Creates a new Mongoose object for the file to save in the DB
- * We do this mainly to avoid the (new-cap) rule error from ES6
- */
-function newHl7File(filename, parsedHl7MessageIds) {
-  return new Hl7FileUpload({ filename, parsedHl7Message: parsedHl7MessageIds });
-}
-
-/**
- * Creates a new Mongoose object for the parsed message to save in the DB
- * We do this mainly to avoid the (new-cap) rule error from ES6
- */
-function newParsedHl7Message(associatedFile, rawMessage, parsedMessage) {
-  return new ParsedHl7({ associatedFile, rawMessage, parsedMessage });
-}
 
 /**
  * Takes in a raw hl7 message or a list of raw messages and returns a list of the parsed message
@@ -51,57 +34,42 @@ function parseRawHl7(rawHl7Message) {
 function readFile(filePath) {
   // TODO: Aditya move your code in here and modify accordingly.
   return filePath;
-};
+}
 
 /**
  * Utilizing Multer, this function receives a file as a request, and saves the generated file name
  * to the DB.
  */
-function uploadFile(req, res) {
-
-  // TODO: Create function to readfile and return list of hl7 messages- we can just use what Aditya wrote (with some slight modification)
-  // const hl7Text = readFile(req.file.path) // TODO: Uncomment this after function has been implemented
-
-
-  fs.readFile(req.file.path, 'utf8', (fsErr, data) => {
-    if (fsErr) {
-      // At this point, even if the file isn't read here, it has
-      // already been saved to the file system. So we would want to
-      // handle that situation somehow.
-      // TODO: Handle case where file isn't read but has been saved to the FS.
-      const error = new APIError(fsErr, httpStatus.BAD_REQUEST);
-      return res.status(error.status).json(fsErr.message);
-    }
-
-    // TODO: Loop over raw messages and parse them
+function parseFile(req, res, next) {
+  new Promise((resolve, reject) =>
+    fs.readFile(req.file.path, 'utf8', (fsErr, data) =>
+      (fsErr ? reject(fsErr) : resolve(data))
+    )
+  ).catch(err =>
+    // At this point, even if the file isn't read here, it has
+    // already been saved to the file system. So we would want to
+    // handle that situation somehow.
+    // TODO: Handle case where file isn't read but has been saved to the FS.
+    next(new APIError(err, httpStatus.BAD_REQUEST))
+  ).then((data) => {
+    req.user.files.push({ filename: req.file.path });
+    const newFile = req.user.files[req.user.length - 1];
+    return Promise.all([data, newFile, req.user.save()]);
+  }).then(([data, file]) => {
     const hl7MessageList = data
       .replace(/\n\r/g, '\n')
       .replace(/\r/g, '\n')
       .split(/\n{2,}/g);
 
-    hl7MessageList.forEach((message) => {
-      // TODO: Parse each message in the read-in file.
-      const parsedHl7Message = parseRawHl7(message);
-      // save the parsed data to ParsedHl7MessageSchema
-      const parsedHl7 = newParsedHl7Message(req.file.filename, data, parsedHl7Message);
-      parsedHl7.save()
-        .then((savedParsedMessage) => {
-          // save the file name along with parsed ID's to HL7FileUploadSchema
-          const hl7File = newHl7File(req.file.filename, [savedParsedMessage._id]);
-          hl7File.save()
-            .catch(() => {
-              const err = new APIError(`Error: Failed to save file ${req.file.filename}`, httpStatus.BAD_REQUEST);
-              return res.status(err.status).json(err.message);
-            });
-          return res.status(httpStatus.CREATED).json(hl7File);
-        })
-        .catch((error) => {
-          const err = new APIError(`Error: Failed to save parsed message: ${error.message}`, httpStatus.BAD_REQUEST);
-          return res.status(err.status).json(error);
-        });
-    });
-  });
+    return Message.create(hl7MessageList.map((rawMessage, indexWithinFile) => ({
+      fileId: file._id,
+      indexWithinFile,
+      rawMessage,
+      parsedMessage: parseRawHl7(rawMessage),
+    })));
+  })
+  .then(() => res.status(201))
+  .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
-
-module.exports = { uploadFile, upload, };
+module.exports = { parseFile, upload, readFile };
