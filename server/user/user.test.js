@@ -4,6 +4,7 @@ const httpStatus = require('http-status');
 const chai = require('chai'); // eslint-disable-line import/newline-after-import
 const expect = chai.expect;
 const app = require('../../index');
+const bcrypt = require('bcrypt');
 
 chai.config.includeStack = true;
 
@@ -20,19 +21,27 @@ after((done) => {
 
 describe('## User APIs', () => {
   let user = {
-    username: 'KK123',
-    mobileNumber: '1234567890'
+    username: 'testName',
+    email: 'testName@gmail.com',
+    password: 'testPassword1'
   };
 
   describe('# POST /api/users', () => {
-    it('should create a new user', (done) => {
+    it('should create a new user through signing up', (done) => {
       request(app)
         .post('/api/users')
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.username).to.equal(user.username);
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
+          expect(res.body.username)
+            .to
+            .equal(user.username);
+          expect(res.body.email)
+            .to
+            .equal(user.email);
+          bcrypt.compare(res.body.password, user.password, (err, response) => {
+            expect(response);
+          });
           user = res.body;
           done();
         })
@@ -40,14 +49,19 @@ describe('## User APIs', () => {
     });
   });
 
+
   describe('# GET /api/users/:userId', () => {
     it('should get user details', (done) => {
       request(app)
         .get(`/api/users/${user._id}`)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.username).to.equal(user.username);
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
+          expect(res.body.username)
+            .to
+            .equal(user.username);
+          expect(res.body.mobileNumber)
+            .to
+            .equal(user.mobileNumber);
           done();
         })
         .catch(done);
@@ -58,7 +72,9 @@ describe('## User APIs', () => {
         .get('/api/users/56c787ccc67fc16ccc1a5e92')
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
-          expect(res.body.message).to.equal('Not Found');
+          expect(res.body.message)
+            .to
+            .equal('Not Found');
           done();
         })
         .catch(done);
@@ -73,8 +89,12 @@ describe('## User APIs', () => {
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.username).to.equal('KK');
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
+          expect(res.body.username)
+            .to
+            .equal('KK');
+          expect(res.body.email)
+            .to
+            .equal(user.email);
           done();
         })
         .catch(done);
@@ -87,7 +107,10 @@ describe('## User APIs', () => {
         .get('/api/users')
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body).to.be.an('array');
+          expect(res.body)
+            .to
+            .be
+            .an('array');
           done();
         })
         .catch(done);
@@ -99,12 +122,16 @@ describe('## User APIs', () => {
         .query({ limit: 10, skip: 1 })
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body).to.be.an('array');
+          expect(res.body)
+            .to
+            .be
+            .an('array');
           done();
         })
         .catch(done);
     });
   });
+
 
   describe('# DELETE /api/users/', () => {
     it('should delete user', (done) => {
@@ -112,8 +139,12 @@ describe('## User APIs', () => {
         .delete(`/api/users/${user._id}`)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.username).to.equal('KK');
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
+          expect(res.body.username)
+            .to
+            .equal('KK');
+          expect(res.body.email)
+            .to
+            .equal(user.email);
           done();
         })
         .catch(done);

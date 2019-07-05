@@ -5,6 +5,7 @@ const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 const fs = require('fs');
 
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'data/hl7-uploads');
@@ -102,4 +103,5 @@ function uploadFile(req, res) {
   });
 }
 
-module.exports = { uploadFile, upload };
+
+module.exports = { uploadFile, upload, };

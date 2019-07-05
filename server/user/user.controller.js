@@ -1,12 +1,17 @@
 const User = require('./user.model');
+const bcrypt = require('bcrypt');
+const APIError = require('../helpers/APIError');
+const httpStatus = require('http-status');
 
 /**
  * Load user and append to req.
+ * TODO: 500 when user doesnt exist
  */
 function load(req, res, next, id) {
   User.get(id)
     .then((user) => {
-      req.user = user; // eslint-disable-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign
+      req.user = user;
       return next();
     })
     .catch(e => next(e));
@@ -20,22 +25,57 @@ function get(req, res) {
   return res.json(req.user);
 }
 
+
 /**
  * Create new user
  * @property {string} req.body.username - The username of user.
- * @property {string} req.body.mobileNumber - The mobileNumber of user.
+ * @property {string} req.body.email - The email address of user.
+ * @property {string} req.body.password - The password of user.
  * @returns {User}
  */
 function create(req, res, next) {
-  const user = new User({
-    username: req.body.username,
-    mobileNumber: req.body.mobileNumber
-  });
+  /*
+  TODO: Need to filter out password in login/signup express log
+   */
+  // First check if username or email already in database
+  User.find({
+    $or: [
+      { email: req.body.email },
+      { username: req.body.username }
 
-  user.save()
-    .then(savedUser => res.json(savedUser))
-    .catch(e => next(e));
+    ]
+
+  }, (err, docs) => {
+    if (docs.length >= 1) {
+      if (docs[0].email === req.body.email) {
+        const error = new APIError(`Error: Account with email already exists! ${req.body.email}`, httpStatus.CONFLICT);
+        next(error);
+        return;
+      }
+      const error = new APIError(`Error: Account with username already exists! ${req.body.username}`, httpStatus.CONFLICT);
+      next(error);
+      return;
+    }
+    // If user does not exist, hash password
+    bcrypt.hash(req.body.password, 10, (error, hash) => {
+      if (error) {
+        const error2 = new APIError('Error: Password hashing failed!', httpStatus.INTERNAL_SERVER_ERROR);
+        return next(error2);
+      }
+      const user = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password: hash
+      });
+      // Save user
+      return user.save()
+        .then(savedUser =>
+          res.json(savedUser))
+        .catch(e => next(e));
+    });
+  });
 }
+
 
 /**
  * Update existing user
@@ -46,7 +86,7 @@ function create(req, res, next) {
 function update(req, res, next) {
   const user = req.user;
   user.username = req.body.username;
-  user.mobileNumber = req.body.mobileNumber;
+  user.email = req.body.email;
 
   user.save()
     .then(savedUser => res.json(savedUser))
