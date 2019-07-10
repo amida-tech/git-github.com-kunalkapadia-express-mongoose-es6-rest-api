@@ -42,9 +42,7 @@ function create(req, res, next) {
     $or: [
       { email: req.body.email },
       { username: req.body.username }
-
     ]
-
   }, (err, docs) => {
     if (docs.length >= 1) {
       if (docs[0].email === req.body.email) {
