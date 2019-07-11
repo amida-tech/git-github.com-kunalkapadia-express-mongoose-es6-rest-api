@@ -35,21 +35,20 @@ function login(req, res, next) {
       return;
     }
     bcrypt.compare(req.body.password, doc.password, (err, result) => {
-      if (err) {
+      if (err || !result) {
         const error2 = new APIError('Error: Authorization Failed! ', httpStatus.UNAUTHORIZED);
         return next(error2);
       }
-      if (result) {
-        const token = jwt.sign({
+      const token = jwt.sign(
+        {
           username: doc.username,
           id: doc._id
-        }, config.jwtSecret,
-          {
-            expiresIn: '1h' });
-        return res.status(httpStatus.OK).json({ token });
-      }
-      const error2 = new APIError('Error: Authorization Failed! ', httpStatus.UNAUTHORIZED);
-      return next(error2);
+        },
+        config.jwtSecret,
+        {
+          expiresIn: '1h'
+        });
+      return res.status(httpStatus.OK).json({ token });
     });
   });
 }
