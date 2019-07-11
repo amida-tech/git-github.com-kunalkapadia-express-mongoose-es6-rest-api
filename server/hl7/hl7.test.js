@@ -29,5 +29,16 @@ describe('## File Upload', () => {
         })
         .catch(done);
     });
+
+    it('Should not upload a file that it not a .txt extension', (done) => {
+      request(app)
+        .post('/api/hl7/upload')
+        .attach('hl7-message', 'data/hl7-sample/test.json')
+        .expect(httpStatus.BAD_REQUEST)
+        .then(() => {
+          done();
+        })
+        .catch(done);
+    });
   });
 });

@@ -9,7 +9,19 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => (cb(null, `${file.originalname}-${Date.now()}`))
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage,
+  fileFilter(req, file, cb) {
+    if (!file) {
+      cb(new APIError('No file found', httpStatus.BAD_REQUEST), false);
+    }
+    if (file.originalname.endsWith('.txt')) {
+      cb(null, true);
+    } else {
+      cb(new APIError('File type not supported', httpStatus.BAD_REQUEST), false);
+    }
+  }
+});
+
 
 /**
  * Creates a new Mongoose object for the rile to save in the DB
