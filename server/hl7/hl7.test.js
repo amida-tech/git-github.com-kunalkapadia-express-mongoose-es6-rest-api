@@ -20,10 +20,38 @@ after((done) => {
 describe('## File Upload', () => {
   describe('# POST /api/hl7/upload', () => {
     it('should upload a file to /data/hl7-uploads', (done) => {
+      const user = {
+        username: 'username',
+        email: 'mail@mail.mail',
+        password: 'Password1'
+      };
+      // create a user
+      request(app)
+        .post('/api/users')
+        .send(user)
+        .expect(httpStatus.OK)
+        // then sign in
+        .then(() => request(app)
+          .post('/api/user/signing')
+          .send(user)
+          // then upload a file as that user
+          .then(res => request(app)
+            .post('/api/hl7/upload')
+            .set('Authorization', `Bearer ${res.body.token}`)
+            .attach('hl7-message', 'data/hl7-sample/test.txt')
+            .expect(httpStatus.CREATED)
+            .then(() => {
+              done();
+            })
+            .catch(done)
+          )
+        )
+    });
+    it('should return unauthorized without a token', (done) => {
       request(app)
         .post('/api/hl7/upload')
         .attach('hl7-message', 'data/hl7-sample/test.txt')
-        .expect(httpStatus.CREATED)
+        .expect(httpStatus.UNAUTHORIZED)
         .then(() => {
           done();
         })
