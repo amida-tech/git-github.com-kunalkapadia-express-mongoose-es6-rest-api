@@ -12,7 +12,7 @@ const opts = {
 };
 
 passport.use(new JwtStrategy(opts, (jwtPayload, done) => {
-  User.get(jwtPayload.sub).then((user) => {
+  User.get(jwtPayload.id).then((user) => {
     if (user) {
       return done(null, user);
     }
