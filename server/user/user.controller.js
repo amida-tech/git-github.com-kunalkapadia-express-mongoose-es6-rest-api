@@ -101,6 +101,7 @@ function create(req, res, next) {
         .then(savedUser =>
           res.json({ username: savedUser.username,
             email: savedUser.email,
+            _id: savedUser._id
           }))
         .catch(e => next(e));
     });
