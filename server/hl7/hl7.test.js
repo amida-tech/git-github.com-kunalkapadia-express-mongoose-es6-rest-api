@@ -48,7 +48,7 @@ describe('## File Upload', () => {
       request(app)
         .post('/api/hl7/upload')
         .set('Authorization', `Bearer ${userToken}`)
-        .attach('hl7-message', 'data/hl7-sample/500HL7Messages.txt')
+        .attach('hl7-file', 'data/hl7-sample/500HL7Messages.txt')
         .expect(httpStatus.CREATED)
         .then(() => {
           done();
@@ -58,7 +58,7 @@ describe('## File Upload', () => {
     it('should return unauthorized without a token', (done) => {
       request(app)
         .post('/api/hl7/upload')
-        .attach('hl7-message', 'data/hl7-sample/test.txt')
+        .attach('hl7-file', 'data/hl7-sample/test.txt')
         .expect(httpStatus.UNAUTHORIZED)
         .then(() => {
           done();
@@ -69,7 +69,7 @@ describe('## File Upload', () => {
       request(app)
         .post('/api/hl7/upload')
         .set('Authorization', `Bearer ${userToken}`)
-        .attach('hl7-message', 'data/hl7-sample/test.json')
+        .attach('hl7-file', 'data/hl7-sample/test.json')
         .expect(httpStatus.BAD_REQUEST)
         .then(() => {
           done();
