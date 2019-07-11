@@ -21,6 +21,10 @@ router.route('/:userId')
   /** DELETE /api/users/:userId - Delete user */
   .delete(userCtrl.remove);
 
+router.route('/login')
+/** POST /api/users/login - Logs in existing user */
+  .post(userCtrl.login);
+
 
 /** Load user when API with userId route parameter is hit */
 router.param('userId', userCtrl.load);

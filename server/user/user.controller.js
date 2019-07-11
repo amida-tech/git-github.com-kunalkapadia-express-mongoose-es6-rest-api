@@ -2,6 +2,8 @@ const User = require('./user.model');
 const bcrypt = require('bcrypt');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
+const jwt = require('jsonwebtoken');
+const config = require('../../config/config');
 
 /**
  * Load user and append to req.
@@ -23,6 +25,32 @@ function load(req, res, next, id) {
  */
 function get(req, res) {
   return res.json(req.user);
+}
+
+function login(req, res, next) {
+  User.findOne({ username: req.body.username }, (error, doc) => {
+    if (!doc) {
+      const error1 = new APIError('Error: Authorization Failed!', httpStatus.UNAUTHORIZED);
+      next(error1);
+      return;
+    }
+    bcrypt.compare(req.body.password, doc.password, (err, result) => {
+      if (err || !result) {
+        const error2 = new APIError('Error: Authorization Failed! ', httpStatus.UNAUTHORIZED);
+        return next(error2);
+      }
+      const token = jwt.sign(
+        {
+          username: doc.username,
+          id: doc._id
+        },
+        config.jwtSecret,
+        {
+          expiresIn: '1h'
+        });
+      return res.status(httpStatus.OK).json({ token });
+    });
+  });
 }
 
 
@@ -70,7 +98,10 @@ function create(req, res, next) {
       // Save user
       return user.save()
         .then(savedUser =>
-          res.json(savedUser))
+          res.json({ username: savedUser.username,
+            email: savedUser.email,
+            _id: savedUser._id
+          }))
         .catch(e => next(e));
     });
   });
@@ -117,4 +148,4 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-module.exports = { load, get, create, update, list, remove };
+module.exports = { load, get, create, update, list, remove, login };
