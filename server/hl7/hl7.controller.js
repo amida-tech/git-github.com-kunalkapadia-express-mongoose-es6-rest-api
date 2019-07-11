@@ -14,7 +14,19 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage,
+  fileFilter(req, file, cb) {
+    if (!file) {
+      cb(new APIError('No file found', httpStatus.BAD_REQUEST), false);
+    }
+    if (file.originalname.endsWith('.txt')) {
+      cb(null, true);
+    } else {
+      cb(new APIError('File type not supported', httpStatus.BAD_REQUEST), false);
+    }
+  }
+});
+
 
 /**
  * Takes in a raw hl7 message or a list of raw messages and returns a list of the parsed message
