@@ -30,7 +30,7 @@ function get(req, res) {
 function login(req, res, next) {
   User.findOne({ username: req.body.username }, (error, doc) => {
     if (!doc) {
-      const error1 = new APIError(`Error: Account with username not found! ${req.body.username}`, httpStatus.UNAUTHORIZED);
+      const error1 = new APIError('Error: Authorization Failed!', httpStatus.UNAUTHORIZED);
       next(error1);
       return;
     }
