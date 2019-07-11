@@ -41,19 +41,19 @@ function readFile(filePath) {
  * to the DB.
  */
 function parseFile(req, res, next) {
-  new Promise((resolve, reject) =>
+  new Promise((resolve, reject) => {
     fs.readFile(req.file.path, 'utf8', (fsErr, data) =>
       (fsErr ? reject(fsErr) : resolve(data))
-    )
-  ).catch(err =>
+    );
+  }).catch(err =>
     // At this point, even if the file isn't read here, it has
     // already been saved to the file system. So we would want to
     // handle that situation somehow.
     // TODO: Handle case where file isn't read but has been saved to the FS.
     next(new APIError(err, httpStatus.BAD_REQUEST))
   ).then((data) => {
-    req.user.files.push({ filename: req.file.path });
-    const newFile = req.user.files[req.user.length - 1];
+    req.user.files.unshift({ filename: req.file.path });
+    const newFile = req.user.files[0];
     return Promise.all([data, newFile, req.user.save()]);
   }).then(([data, file]) => {
     const hl7MessageList = data
@@ -61,14 +61,16 @@ function parseFile(req, res, next) {
       .replace(/\r/g, '\n')
       .split(/\n{2,}/g);
 
-    return Message.create(hl7MessageList.map((rawMessage, indexWithinFile) => ({
-      fileId: file._id,
-      indexWithinFile,
-      rawMessage,
-      parsedMessage: parseRawHl7(rawMessage),
-    })));
+    return Message.create(hl7MessageList.filter(rawMessage => !!rawMessage)
+      .map((rawMessage, indexWithinFile) => ({
+        fileId: file._id,
+        indexWithinFile,
+        rawMessage,
+        parsedMessage: parseRawHl7(rawMessage),
+      })
+    ));
   })
-  .then(() => res.status(201))
+  .then(() => res.status(201).end())
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 

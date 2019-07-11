@@ -1,4 +1,6 @@
 const express = require('express');
+const passport = require('passport');
+
 const userRoutes = require('./server/user/user.route');
 const hl7Routes = require('./server/hl7/hl7.route');
 
@@ -15,6 +17,6 @@ router.get('/health-check', (req, res) =>
 router.use('/users', userRoutes);
 
 // mount hl7 routes to /hl7
-router.use('/hl7', hl7Routes);
+router.use('/hl7', passport.authenticate('jwt', { session: false }), hl7Routes);
 
 module.exports = router;

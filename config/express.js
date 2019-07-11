@@ -11,8 +11,8 @@ const expressValidation = require('express-validation');
 const helmet = require('helmet');
 const passport = require('passport');
 
-const winstonInstance = require('./winston');
 require('./passport');
+const winstonInstance = require('./winston');
 const routes = require('../index.route');
 const config = require('./config');
 const APIError = require('../server/helpers/APIError');
