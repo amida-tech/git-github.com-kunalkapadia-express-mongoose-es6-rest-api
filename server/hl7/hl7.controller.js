@@ -39,16 +39,6 @@ function parseRawHl7(rawHl7Message) {
 }
 
 /**
- * Reads a file from a specified path and returns a list of hl7 messages
- * @param filePath
- * @returns {*}
- */
-function readFile(filePath) {
-  // TODO: Aditya move your code in here and modify accordingly.
-  return filePath;
-}
-
-/**
  * Utilizing Multer, this function receives a file as a request, and saves the generated file name
  * to the DB.
  */
@@ -58,10 +48,6 @@ function parseFile(req, res, next) {
       (fsErr ? reject(fsErr) : resolve(data))
     );
   }).catch(err =>
-    // At this point, even if the file isn't read here, it has
-    // already been saved to the file system. So we would want to
-    // handle that situation somehow.
-    // TODO: Handle case where file isn't read but has been saved to the FS.
     next(new APIError(err, httpStatus.BAD_REQUEST))
   ).then((data) => {
     req.user.files.unshift({ filename: req.file.path });
@@ -74,9 +60,9 @@ function parseFile(req, res, next) {
       .split(/\n{2,}/g);
 
     return Message.create(hl7MessageList.filter(rawMessage => !!rawMessage)
-      .map((rawMessage, indexWithinFile) => ({
+      .map((rawMessage, messageNumWithinFile) => ({
         fileId: file._id,
-        indexWithinFile,
+        messageNumWithinFile,
         rawMessage,
         parsedMessage: parseRawHl7(rawMessage),
       })
@@ -86,4 +72,4 @@ function parseFile(req, res, next) {
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
-module.exports = { parseFile, upload, readFile };
+module.exports = { parseFile, upload };

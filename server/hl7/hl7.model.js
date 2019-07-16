@@ -5,7 +5,7 @@ const MessageSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     required: true,
   },
-  indexWithinFile: {
+  messageNumWithinFile: {
     type: Number,
     required: true,
   },
