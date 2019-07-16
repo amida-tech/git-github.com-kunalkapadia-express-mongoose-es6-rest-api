@@ -9,6 +9,9 @@ const httpStatus = require('http-status');
 const expressWinston = require('express-winston');
 const expressValidation = require('express-validation');
 const helmet = require('helmet');
+const passport = require('passport');
+
+require('./passport');
 const winstonInstance = require('./winston');
 const routes = require('../index.route');
 const config = require('./config');
@@ -34,6 +37,8 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
+
+app.use(passport.initialize());
 
 // enable detailed API logging in dev env
 if (config.env === 'development') {

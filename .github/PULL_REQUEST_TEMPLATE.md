@@ -2,12 +2,8 @@
 >Please enter the whole URL so we can just click/copy it
 -
 
-### What is the current behavior?
->i.e. We didn't have a button to do the thing, so we needed to add a button to do the thing
--
-
-### What is the new behavior?
->i.e. Added a button to do the thing and also handled edge-cases
+### What exactly does this PR do?
+>i.e. Added logic to do the thing because the thing didn't exist before. Please provide as much detail as possible. 
 -
 
 ### What else was added outside of the scope of the ask?

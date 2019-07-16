@@ -5,15 +5,11 @@ const httpStatus = require('http-status');
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
 
-/**
- * Load user and append to req.
- * TODO: 500 when user doesnt exist
- */
 function load(req, res, next, id) {
   User.get(id)
     .then((user) => {
       // eslint-disable-next-line no-param-reassign
-      req.user = user;
+      req.otherUser = user;
       return next();
     })
     .catch(e => next(e));
@@ -24,7 +20,7 @@ function load(req, res, next, id) {
  * @returns {User}
  */
 function get(req, res) {
-  return res.json(req.user);
+  return res.json(req.otherUser);
 }
 
 function login(req, res, next) {
@@ -70,9 +66,7 @@ function create(req, res, next) {
     $or: [
       { email: req.body.email },
       { username: req.body.username }
-
     ]
-
   }, (err, docs) => {
     if (docs.length >= 1) {
       if (docs[0].email === req.body.email) {
@@ -115,7 +109,7 @@ function create(req, res, next) {
  * @returns {User}
  */
 function update(req, res, next) {
-  const user = req.user;
+  const user = req.otherUser;
   user.username = req.body.username;
   user.email = req.body.email;
 
@@ -142,7 +136,7 @@ function list(req, res, next) {
  * @returns {User}
  */
 function remove(req, res, next) {
-  const user = req.user;
+  const user = req.otherUser;
   user.remove()
     .then(deletedUser => res.json(deletedUser))
     .catch(e => next(e));

@@ -1,8 +1,24 @@
 const mongoose = require('mongoose');
 
-const HL7FileUploadSchema = new mongoose.Schema({
-  fileName: { type: String, required: true },
-  dateAdded: { type: Date, default: () => Date.now() },
+const MessageSchema = new mongoose.Schema({
+  fileId: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+  },
+  messageNumWithinFile: {
+    type: Number,
+    required: true,
+  },
+  rawMessage: {
+    type: String,
+    required: true,
+  },
+  parsedMessage: {
+    type: Object,
+    required: true,
+  },
+}, {
+  timestamps: true,
 });
 
-module.exports = mongoose.model('HL7', HL7FileUploadSchema);
+module.exports = mongoose.model('Message', MessageSchema);

@@ -26,7 +26,6 @@ router.route('/login')
   .post(userCtrl.login);
 
 
-/** Load user when API with userId route parameter is hit */
 router.param('userId', userCtrl.load);
 
 module.exports = router;
