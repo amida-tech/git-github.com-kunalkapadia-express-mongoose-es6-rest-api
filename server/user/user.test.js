@@ -49,7 +49,6 @@ describe('## User APIs', () => {
     });
   });
 
-
   describe('# GET /api/users/:userId', () => {
     it('should get user details', (done) => {
       request(app)

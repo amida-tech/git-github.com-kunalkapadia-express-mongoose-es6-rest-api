@@ -3,6 +3,9 @@ const Message = require('./hl7.model');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 const fs = require('fs');
+const Hl7Parser = require('health-level-seven-parser');
+
+const hl7Parser = new Hl7Parser.Hl7Parser();
 
 
 const storage = multer.diskStorage({
@@ -32,10 +35,8 @@ const upload = multer({ storage,
  * Takes in a raw hl7 message or a list of raw messages and returns a list of the parsed message
  */
 function parseRawHl7(rawHl7Message) {
-  // TODO: Implement this function
-  return {
-    ADT: rawHl7Message
-  };
+  const parsedMessage = hl7Parser.getHl7Model(rawHl7Message, true);
+  return parsedMessage.children;
 }
 
 /**
