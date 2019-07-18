@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     // Check if file with the same name already exist in the FS.
     fs.stat(`${uploadedFilePath}/${file.originalname}`, (err) => {
       if (err === null) {
-        const error = new APIError('File with that name already exist', httpStatus.CONFLICT);
+        const error = new APIError('A file with that name already exist', httpStatus.CONFLICT);
         cb(error, false);
       }
       cb(null, `${file.originalname}`);
