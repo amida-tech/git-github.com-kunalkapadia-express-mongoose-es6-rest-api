@@ -4,13 +4,22 @@ const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 const fs = require('fs');
 
+const uploadedFilePath = 'data/hl7-uploads';
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'data/hl7-uploads');
+    cb(null, uploadedFilePath);
   },
   filename: (req, file, cb) => {
-    cb(null, `${file.originalname}`);
+    // Check if file with the same name already exist in the FS.
+    fs.stat(`${uploadedFilePath}/${file.originalname}`, (err) => {
+      if (err === null) {
+        const error = new APIError('File with that name already exist', httpStatus.CONFLICT);
+        cb(error, false);
+      }
+      cb(null, `${file.originalname}`);
+    });
   }
 });
 
