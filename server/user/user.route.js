@@ -25,7 +25,6 @@ router.route('/login')
 /** POST /api/users/login - Logs in existing user */
   .post(userCtrl.login);
 
-
 router.param('userId', userCtrl.load);
 
 module.exports = router;

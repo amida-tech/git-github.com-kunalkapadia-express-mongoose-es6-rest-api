@@ -83,4 +83,28 @@ function parseFile(req, res, next) {
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
-module.exports = { parseFile, upload };
+/**
+ * Get list of user files
+ * @returns {files[]}
+ */
+function getUserFiles(req, res) {
+  if (req.user && req.user.files.length > 0) {
+    const files = req.user.files.map((fileObj) => {
+      const fileName = fileObj.filename.split('/')[fileObj.filename.split('/').length - 1];
+      return fileName;
+    });
+    return res.status(httpStatus.OK).json(files);
+  }
+
+  let err;
+  if (req.user.files.length === 0) {
+    err = new APIError('User has no files uploaded', httpStatus.NO_CONTENT);
+  } else {
+    err = new APIError('There was an error retrieving uploaded files', httpStatus.BAD_REQUEST);
+  }
+
+  return res.status(httpStatus.BAD_REQUEST).json(err.message);
+}
+
+
+module.exports = { parseFile, upload, getUserFiles };
