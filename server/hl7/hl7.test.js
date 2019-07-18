@@ -55,6 +55,17 @@ describe('## File Upload', () => {
         })
         .catch(done);
     });
+    it('should not upload a file with the same name', (done) => {
+      request(app)
+        .post('/api/hl7/upload')
+        .set('Authorization', `Bearer ${userToken}`)
+        .attach('hl7-file', 'data/hl7-sample/500HL7Messages.txt')
+        .expect(httpStatus.CONFLICT)
+        .then(() => {
+          done();
+        })
+        .catch(done);
+    });
     it('should return unauthorized without a token', (done) => {
       request(app)
         .post('/api/hl7/upload')

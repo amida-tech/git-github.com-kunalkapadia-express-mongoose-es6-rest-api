@@ -42,7 +42,7 @@ function login(req, res, next) {
         },
         config.jwtSecret,
         {
-          expiresIn: '1h'
+          expiresIn: config.jwtExpTime
         });
       return res.status(httpStatus.OK).json({ token });
     });
