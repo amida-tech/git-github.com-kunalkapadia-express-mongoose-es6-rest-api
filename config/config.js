@@ -23,7 +23,9 @@ const envVarsSchema = Joi.object({
   JWT_SECRET: Joi.string().required(),
   JWT_EXP_TIME: Joi.string().required()
     .default('1h')
-    .description('Expiration time for JWT')
+    .description('Expiration time for JWT'),
+  FILE_UPLOAD_PATH: Joi.string().required()
+    .default('data/hl7-uploads')
 }).unknown()
   .required();
 
@@ -41,7 +43,8 @@ const config = {
     port: envVars.MONGO_PORT
   },
   jwtSecret: envVars.JWT_SECRET,
-  jwtExpTime: envVars.JWT_EXP_TIME
+  jwtExpTime: envVars.JWT_EXP_TIME,
+  fileUploadPath: envVars.FILE_UPLOAD_PATH
 };
 
 module.exports = config;

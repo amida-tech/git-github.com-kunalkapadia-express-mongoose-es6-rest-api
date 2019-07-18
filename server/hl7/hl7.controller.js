@@ -4,10 +4,11 @@ const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 const fs = require('fs');
 const Hl7Parser = require('health-level-seven-parser');
+const config = require('../../config/config');
 
 const hl7Parser = new Hl7Parser.Hl7Parser();
 
-const uploadedFilePath = 'data/hl7-uploads';
+const uploadedFilePath = config.fileUploadPath;
 
 
 const storage = multer.diskStorage({
