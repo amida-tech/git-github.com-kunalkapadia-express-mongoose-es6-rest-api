@@ -1597,6 +1597,11 @@ hawk@~3.1.3:
     hoek "2.x.x"
     sntp "1.x.x"
 
+health-level-seven-parser@1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/health-level-seven-parser/-/health-level-seven-parser-1.2.2.tgz#4bad51335c54a7b82922b1e14ff9e4df6876aa47"
+  integrity sha512-KUlBxCbLTYzj7KX/CapNbNDYol2VBNEqYfK1MzZLNuXwUpKEfFBio8CAwfWc0f4B+/TEtBmN8jaE9zPYafPlNA==
+
 helmet-csp@2.7.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/helmet-csp/-/helmet-csp-2.7.0.tgz#7934094617d1feb7bb2dc43bb7d9e8830f774716"
