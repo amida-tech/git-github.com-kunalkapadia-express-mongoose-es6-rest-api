@@ -111,27 +111,55 @@ function getUserFiles(req, res, next) {
 
 function getMessageByIndexOrId(req, res, next) {
   let err;
+  const fileId = req.params.fileId;
   if (!mongoose.Types.ObjectId.isValid(req.params.indexWithinFileOrId)) { // treat as index in file
     const messageIndex = req.params.indexWithinFileOrId;
     if (!Number.isInteger(parseInt(messageIndex, 10))) {
       err = new APIError(`Invalid Message Index: ${messageIndex}`, httpStatus.BAD_REQUEST);
       return next(err);
     }
-    console.log();
-    console.log(`MESSAGE INDEX FROM REQ: ${messageIndex}`);
-    console.log();
-    _getMessageByIndex(messageIndex)
+    return _getMessageByIndex(messageIndex, fileId)
       .then((message) => {
-        return res.status(httpStatus.OK).json(message);
+        if (message.length > 0) res.status(httpStatus.OK).json(message);
+        else res.status(httpStatus.NOT_FOUND).json('Message Not found. Check index number & File ID');
       })
       .catch((error => next(new APIError(error, httpStatus.INTERNAL_SERVER_ERROR))));
   }
-  // TODO: Implement search by ID here.
+  const messageId = req.params.indexWithinFileOrId;
+  return _getMessageById(messageId, fileId)
+    .then((message) => {
+      if (message.length > 0) res.status(httpStatus.OK).json(message);
+      else res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message ID & File ID');
+    })
+    .catch((error => next(new APIError(error, httpStatus.INTERNAL_SERVER_ERROR))));
 }
 
-function _getMessageByIndex(messageIndex) {
+function _getMessageByIndex(messageIndex, fileId) {
   return new Promise((resolve, reject) => {
-    Message.find({ messageNumWithinFile: messageIndex }).exec((err, message) => {
+    Message.find({
+      $and: [
+        { messageNumWithinFile: messageIndex },
+        { fileId }
+      ]
+    })
+    .exec((err, message) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(message);
+    });
+  });
+}
+
+function _getMessageById(messageId, fileId) {
+  return new Promise((resolve, reject) => {
+    Message.find({
+      $and: [
+        { _id: messageId },
+        { fileId }
+      ]
+    })
+    .exec((err, message) => {
       if (err) {
         reject(err);
       }
