@@ -87,11 +87,14 @@ function parseFile(req, res, next) {
  * Get list of user files
  * @returns {files[]}
  */
-function getUserFiles(req, res) {
+function getUserFiles(req, res, next) {
   if (req.user && req.user.files.length > 0) {
     const files = req.user.files.map((fileObj) => {
-      const fileName = fileObj.filename.split('/')[fileObj.filename.split('/').length - 1];
-      return fileName;
+      const file = {
+        id: fileObj._id,
+        name: fileObj.filename.split('/')[fileObj.filename.split('/').length - 1]
+      };
+      return file;
     });
     return res.status(httpStatus.OK).json(files);
   }
@@ -102,8 +105,7 @@ function getUserFiles(req, res) {
   } else {
     err = new APIError('There was an error retrieving uploaded files', httpStatus.BAD_REQUEST);
   }
-
-  return res.status(httpStatus.BAD_REQUEST).json(err.message);
+  return next(err);
 }
 
 
