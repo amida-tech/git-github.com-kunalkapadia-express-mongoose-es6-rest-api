@@ -49,7 +49,6 @@ function login(req, res, next) {
   });
 }
 
-
 /**
  * Create new user
  * @property {string} req.body.username - The username of user.
@@ -100,7 +99,6 @@ function create(req, res, next) {
     });
   });
 }
-
 
 /**
  * Update existing user

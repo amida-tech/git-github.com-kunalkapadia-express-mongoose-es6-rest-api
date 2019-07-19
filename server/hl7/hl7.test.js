@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const request = require('supertest-as-promised');
 const httpStatus = require('http-status');
 const chai = require('chai'); // eslint-disable-line import/newline-after-import
+const expect = chai.expect;
 const app = require('../../index');
 
 chai.config.includeStack = true;
@@ -17,33 +18,34 @@ after((done) => {
   done();
 });
 
+const user = {
+  username: 'username',
+  email: 'mail@mail.mail',
+  password: 'Password1'
+};
+let userToken = '';
+before((done) => {
+  // create a user
+  request(app)
+    .post('/api/users')
+    .send(user)
+    .expect(httpStatus.OK)
+    // then sign in
+    .then(() => request(app)
+      .post('/api/users/login')
+      .send(user)
+      .expect(httpStatus.OK)
+      .then((res) => {
+        // save the token
+        userToken = res.body.token;
+        done();
+      })
+      .catch(done)
+    );
+});
+
 describe('## File Upload', () => {
   describe('# POST /api/hl7/upload', () => {
-    const user = {
-      username: 'username',
-      email: 'mail@mail.mail',
-      password: 'Password1'
-    };
-    let userToken = '';
-    before((done) => {
-      // create a user
-      request(app)
-        .post('/api/users')
-        .send(user)
-        .expect(httpStatus.OK)
-        // then sign in
-        .then(() => request(app)
-          .post('/api/users/login')
-          .send(user)
-          .expect(httpStatus.OK)
-          .then((res) => {
-            // save the token
-            userToken = res.body.token;
-            done();
-          })
-          .catch(done)
-        );
-    });
     it('should upload a file to /data/hl7-uploads', (done) => {
       request(app)
         .post('/api/hl7/upload')
@@ -83,6 +85,23 @@ describe('## File Upload', () => {
         .attach('hl7-file', 'server/tests/data/test.json')
         .expect(httpStatus.BAD_REQUEST)
         .then(() => {
+          done();
+        })
+        .catch(done);
+    });
+  });
+});
+
+describe('## Retrieve File', () => {
+  describe('# GET /api/hl7/files', () => {
+    it('should retrieve all the uploaded files ', (done) => {
+      request(app)
+        .get('/api/hl7/files')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.length).equal(1);
+          expect(res.body[0].name).equal('500HL7Messages.txt');
           done();
         })
         .catch(done);
