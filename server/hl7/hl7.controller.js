@@ -1,4 +1,5 @@
 const multer = require('multer');
+const mongoose = require('mongoose');
 const Message = require('./hl7.model');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
@@ -108,5 +109,35 @@ function getUserFiles(req, res, next) {
   return next(err);
 }
 
+function getMessageByIndexOrId(req, res, next) {
+  let err;
+  if (!mongoose.Types.ObjectId.isValid(req.params.indexWithinFileOrId)) { // treat as index in file
+    const messageIndex = req.params.indexWithinFileOrId;
+    if (!Number.isInteger(parseInt(messageIndex, 10))) {
+      err = new APIError(`Invalid Message Index: ${messageIndex}`, httpStatus.BAD_REQUEST);
+      return next(err);
+    }
+    console.log();
+    console.log(`MESSAGE INDEX FROM REQ: ${messageIndex}`);
+    console.log();
+    _getMessageByIndex(messageIndex)
+      .then((message) => {
+        return res.status(httpStatus.OK).json(message);
+      })
+      .catch((error => next(new APIError(error, httpStatus.INTERNAL_SERVER_ERROR))));
+  }
+  // TODO: Implement search by ID here.
+}
 
-module.exports = { parseFile, upload, getUserFiles };
+function _getMessageByIndex(messageIndex) {
+  return new Promise((resolve, reject) => {
+    Message.find({ messageNumWithinFile: messageIndex }).exec((err, message) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(message);
+    });
+  });
+}
+
+module.exports = { parseFile, upload, getUserFiles, getMessageByIndexOrId };

@@ -13,4 +13,9 @@ router.route('/files')
 /** GET /api/hl7/files - Retrieves all user files */
   .get(hl7Ctrl.getUserFiles);
 
+router.route('/files/:fileId/messages/:indexWithinFileOrId')
+/** GET /api/hl7/files - Retrieves all user files */
+  .get(hl7Ctrl.getMessageByIndexOrId);
+
+
 module.exports = router;
