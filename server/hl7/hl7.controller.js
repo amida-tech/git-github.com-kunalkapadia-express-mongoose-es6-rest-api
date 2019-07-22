@@ -109,36 +109,63 @@ function getUserFiles(req, res, next) {
   return next(err);
 }
 
-function getMessageByIndexOrId(req, res, next) {
-  let err;
+function getMessageByid(req, res, next) {
+  let error;
+  const messageId = req.params.messageId;
   const fileId = req.params.fileId;
-  if (!mongoose.Types.ObjectId.isValid(req.params.indexWithinFileOrId)) { // treat as index in file
-    const messageIndex = req.params.indexWithinFileOrId;
-    if (!Number.isInteger(parseInt(messageIndex, 10))) {
-      err = new APIError(`Invalid Message Index: ${messageIndex}`, httpStatus.BAD_REQUEST);
-      return next(err);
-    }
-    return _getMessageByIndex(messageIndex, fileId)
-      .then((message) => {
-        if (message.length > 0) res.status(httpStatus.OK).json(message);
-        else res.status(httpStatus.NOT_FOUND).json('Message Not found. Check index number & File ID');
-      })
-      .catch((error => next(new APIError(error, httpStatus.INTERNAL_SERVER_ERROR))));
+
+  if (!mongoose.Types.ObjectId.isValid(messageId)) {
+    error = new APIError(`Invalid Message Index: ${messageId}`, httpStatus.BAD_REQUEST);
+    return next(error);
   }
-  const messageId = req.params.indexWithinFileOrId;
-  return _getMessageById(messageId, fileId)
+
+  return _getMessageByIdOrIndex(messageId, fileId)
     .then((message) => {
-      if (message.length > 0) res.status(httpStatus.OK).json(message);
-      else res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message ID & File ID');
+      if (message) {
+        res.status(httpStatus.OK).json(message);
+      } else {
+        res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message ID');
+      }
     })
-    .catch((error => next(new APIError(error, httpStatus.INTERNAL_SERVER_ERROR))));
+    .catch((err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
 }
 
-function _getMessageByIndex(messageIndex, fileId) {
+function getMessageByIndex(req, res, next) {
+  let error;
+  const fileId = req.params.fileId;
+  const messageIndex = req.params.indexWithinFile;
+
+  if (!Number.isInteger(parseInt(messageIndex, 10))) {
+    error = new APIError(`Invalid Message Index: ${messageIndex}`, httpStatus.BAD_REQUEST);
+    return next(error);
+  }
+
+  return _getMessageByIdOrIndex(messageIndex, fileId)
+    .then((message) => {
+      if (message) {
+        res.status(httpStatus.OK).json(message);
+      } else {
+        res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message index');
+      }
+    })
+    .catch((err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
+}
+
+function _getMessageByIdOrIndex(value, fileId) {
+  let queryValue;
+  if (!mongoose.Types.ObjectId.isValid(value) && Number.isInteger(parseInt(value, 10))) {
+    queryValue = {
+      messageNumWithinFile: value
+    };
+  } else {
+    queryValue = {
+      _id: value
+    };
+  }
   return new Promise((resolve, reject) => {
-    Message.find({
+    Message.findOne({
       $and: [
-        { messageNumWithinFile: messageIndex },
+        queryValue,
         { fileId }
       ]
     })
@@ -151,21 +178,4 @@ function _getMessageByIndex(messageIndex, fileId) {
   });
 }
 
-function _getMessageById(messageId, fileId) {
-  return new Promise((resolve, reject) => {
-    Message.find({
-      $and: [
-        { _id: messageId },
-        { fileId }
-      ]
-    })
-    .exec((err, message) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(message);
-    });
-  });
-}
-
-module.exports = { parseFile, upload, getUserFiles, getMessageByIndexOrId };
+module.exports = { parseFile, upload, getUserFiles, getMessageByIndex, getMessageByid };
