@@ -92,7 +92,7 @@ describe('## File Upload', () => {
   });
 });
 
-describe('## Retrieve File', () => {
+describe('## Retrieve File / Messages', () => {
   describe('# GET /api/hl7/files', () => {
     it('should retrieve all the uploaded files ', (done) => {
       request(app)
@@ -102,6 +102,24 @@ describe('## Retrieve File', () => {
         .then((res) => {
           expect(res.body.length).equal(1);
           expect(res.body[0].name).equal('500HL7Messages.txt');
+          done();
+        })
+        .catch(done);
+    });
+  });
+  describe('# GET /api/hl7/files/fileId/messages/messageIndex', () => {
+    it('should retrieve first message using message index ', (done) => {
+      request(app)
+        .get('/api/hl7/files')
+        .set('Authorization', `Bearer ${userToken}`)
+        .then((res) => {
+          request(app)
+            .get(`/api/hl7/files/${res.body[0].id}/messages/${0}`)
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(httpStatus.OK)
+            .then((response) => {
+              expect(response.body.messageNumWithinFile).equal(0);
+            });
           done();
         })
         .catch(done);

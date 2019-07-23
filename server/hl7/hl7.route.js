@@ -10,7 +10,18 @@ router.route('/upload')
   .post(hl7Ctrl.upload.single('hl7-file'), hl7Ctrl.parseFile);
 
 router.route('/files')
-/** GET /api/hl7/files - Retrieves all user files */
+  /** GET /api/hl7/files - Retrieves all user files */
   .get(hl7Ctrl.getUserFiles);
+
+router.route('/files/:fileId/messages/:indexWithinFile')
+  /** GET /api/hl7/files/fileId/messages/messageIndex -
+   * Retrieves single message from file based on index */
+  .get(hl7Ctrl.getMessageByIndex);
+
+router.route('/files/:fileId/messages/:messageId')
+  /** GET /api/hl7/files/fileId/messages/messageId -
+   * Retrieves single message from file based on ID */
+  .get(hl7Ctrl.getMessageByid);
+
 
 module.exports = router;

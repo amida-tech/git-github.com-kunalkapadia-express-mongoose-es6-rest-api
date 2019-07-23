@@ -1,4 +1,5 @@
 const multer = require('multer');
+const mongoose = require('mongoose');
 const Message = require('./hl7.model');
 const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
@@ -108,5 +109,73 @@ function getUserFiles(req, res, next) {
   return next(err);
 }
 
+function getMessageByid(req, res, next) {
+  let error;
+  const messageId = req.params.messageId;
+  const fileId = req.params.fileId;
 
-module.exports = { parseFile, upload, getUserFiles };
+  if (!mongoose.Types.ObjectId.isValid(messageId)) {
+    error = new APIError(`Invalid Message Index: ${messageId}`, httpStatus.BAD_REQUEST);
+    return next(error);
+  }
+
+  return _getMessageByIdOrIndex(messageId, fileId)
+    .then((message) => {
+      if (message) {
+        res.status(httpStatus.OK).json(message);
+      } else {
+        res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message ID');
+      }
+    })
+    .catch((err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
+}
+
+function getMessageByIndex(req, res, next) {
+  let error;
+  const fileId = req.params.fileId;
+  const messageIndex = req.params.indexWithinFile;
+
+  if (!Number.isInteger(parseInt(messageIndex, 10))) {
+    error = new APIError(`Invalid Message Index: ${messageIndex}`, httpStatus.BAD_REQUEST);
+    return next(error);
+  }
+
+  return _getMessageByIdOrIndex(messageIndex, fileId)
+    .then((message) => {
+      if (message) {
+        res.status(httpStatus.OK).json(message);
+      } else {
+        res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message index');
+      }
+    })
+    .catch((err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
+}
+
+function _getMessageByIdOrIndex(value, fileId) {
+  let queryValue;
+  if (!mongoose.Types.ObjectId.isValid(value) && Number.isInteger(parseInt(value, 10))) {
+    queryValue = {
+      messageNumWithinFile: value
+    };
+  } else {
+    queryValue = {
+      _id: value
+    };
+  }
+  return new Promise((resolve, reject) => {
+    Message.findOne({
+      $and: [
+        queryValue,
+        { fileId }
+      ]
+    })
+    .exec((err, message) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(message);
+    });
+  });
+}
+
+module.exports = { parseFile, upload, getUserFiles, getMessageByIndex, getMessageByid };
