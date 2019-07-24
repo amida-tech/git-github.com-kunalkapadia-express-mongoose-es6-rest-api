@@ -14,7 +14,7 @@ router.route('/files')
   .get(hl7Ctrl.getUserFiles);
 
 router.route('/files/:fileId')
-  /** GET /api/hl7/files - Retrieves all user files */
+/** GET /api/hl7/files/fileId - Retrieves all parsed messages in a file */
   .get(hl7Ctrl.getParsedMessages);
 
 
