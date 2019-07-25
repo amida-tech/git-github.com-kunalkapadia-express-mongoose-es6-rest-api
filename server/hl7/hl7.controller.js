@@ -120,7 +120,11 @@ function getParsedMessages(req, res, next) {
       );
       return next(error);
     }
-    const parsedMessages = docs.map(message => message.parsedMessage);
+    const parsedMessages = docs.map(message => ({
+      messageId: message._id,
+      parsedMessage: message.parsedMessage
+    }));
+
     return res.status(httpStatus.OK).json(parsedMessages);
   });
 }
