@@ -113,6 +113,11 @@ function getUserFiles(req, res, next) {
 }
 
 function getParsedMessages(req, res, next) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.fileId)) {
+    const error = new APIError('Error: Not a valid file ID', httpStatus.BAD_REQUEST);
+    next(error);
+    return;
+  }
   Message.find({ fileId: req.params.fileId }, (err, docs) => {
     if (docs.length === 0) {
       const error = new APIError(
