@@ -13,6 +13,10 @@ router.route('/files')
   /** GET /api/hl7/files - Retrieves all user files */
   .get(hl7Ctrl.getUserFiles);
 
+router.route('/files/:fileId/messages')
+/** GET /api/hl7/files/fileId/messages - Retrieves all parsed messages in a file */
+  .get(hl7Ctrl.getParsedMessages);
+
 router.route('/files/:fileId/messages/:indexWithinFile')
   /** GET /api/hl7/files/fileId/messages/messageIndex -
    * Retrieves single message from file based on index */

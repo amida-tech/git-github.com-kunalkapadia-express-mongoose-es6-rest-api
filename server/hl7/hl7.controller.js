@@ -11,7 +11,6 @@ const hl7Parser = new Hl7Parser.Hl7Parser();
 
 const uploadedFilePath = config.fileUploadPath;
 
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadedFilePath);
@@ -40,7 +39,6 @@ const upload = multer({ storage,
     }
   }
 });
-
 
 /**
  * Takes in a raw hl7 message or a list of raw messages and returns a list of the parsed message
@@ -93,7 +91,9 @@ function getUserFiles(req, res, next) {
     const files = req.user.files.map((fileObj) => {
       const file = {
         id: fileObj._id,
-        name: fileObj.filename.split('/')[fileObj.filename.split('/').length - 1]
+        name: fileObj.filename.split('/')[
+          fileObj.filename.split('/').length - 1
+        ]
       };
       return file;
     });
@@ -104,9 +104,35 @@ function getUserFiles(req, res, next) {
   if (req.user.files.length === 0) {
     err = new APIError('User has no files uploaded', httpStatus.NO_CONTENT);
   } else {
-    err = new APIError('There was an error retrieving uploaded files', httpStatus.BAD_REQUEST);
+    err = new APIError(
+      'There was an error retrieving uploaded files',
+      httpStatus.BAD_REQUEST
+    );
   }
   return next(err);
+}
+
+function getParsedMessages(req, res, next) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.fileId)) {
+    const error = new APIError('Error: Not a valid file ID', httpStatus.BAD_REQUEST);
+    next(error);
+    return;
+  }
+  Message.find({ fileId: req.params.fileId }, (err, docs) => {
+    if (docs.length === 0) {
+      const error = new APIError(
+        'Error: File Not Found!',
+        httpStatus.NOT_FOUND
+      );
+      return next(error);
+    }
+    const parsedMessages = docs.map(message => ({
+      messageId: message._id,
+      parsedMessage: message.parsedMessage
+    }));
+
+    return res.status(httpStatus.OK).json(parsedMessages);
+  });
 }
 
 function getMessageByid(req, res, next) {
@@ -178,4 +204,9 @@ function _getMessageByIdOrIndex(value, fileId) {
   });
 }
 
-module.exports = { parseFile, upload, getUserFiles, getMessageByIndex, getMessageByid };
+module.exports = { parseFile,
+  upload,
+  getUserFiles,
+  getMessageByIndex,
+  getMessageByid,
+  getParsedMessages };
