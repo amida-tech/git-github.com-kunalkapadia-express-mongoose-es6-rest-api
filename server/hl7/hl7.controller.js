@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     // Check if file with the same name already exist in the FS.
     fs.stat(`${uploadedFilePath}/${file.originalname}`, (err) => {
       if (err === null) {
-        const error = new APIError('A file with that name already exist', httpStatus.CONFLICT);
+        const error = new APIError('A file with that name already exists', httpStatus.CONFLICT);
         cb(error, false);
       }
       cb(null, `${file.originalname}`);
@@ -80,7 +80,7 @@ function parseFile(req, res, next) {
       })
     ));
   })
-  .then(() => res.status(201).end())
+  .then(() => res.status(201).json(req.user.files[0]))
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
