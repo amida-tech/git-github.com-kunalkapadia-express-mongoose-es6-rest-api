@@ -100,7 +100,7 @@ function getUserFiles(req, res, next) {
   if (req.user && req.user.files.length > 0) {
     const files = req.user.files.map((fileObj) => {
       const file = {
-        _id: fileObj._id,
+        id: fileObj._id,
         filename: getFileName(fileObj.filename)
       };
       return file;
