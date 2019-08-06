@@ -101,7 +101,7 @@ describe('## Retrieve File / Messages', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.length).equal(1);
-          expect(res.body[0].name).equal('500HL7Messages.txt');
+          expect(res.body[0].filename).equal('500HL7Messages.txt');
           done();
         })
         .catch(done);

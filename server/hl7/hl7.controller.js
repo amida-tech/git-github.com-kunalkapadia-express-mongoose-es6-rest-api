@@ -41,6 +41,14 @@ const upload = multer({ storage,
   }
 });
 
+/**
+ * Helper function that returns file name from full path
+ * @param filepath
+ * @returns {string}
+ */
+function getFileName(filepath) {
+  return filepath.split('/')[filepath.split('/').length - 1];
+}
 
 /**
  * Takes in a raw hl7 message or a list of raw messages and returns a list of the parsed message
@@ -80,7 +88,7 @@ function parseFile(req, res, next) {
       })
     ));
   })
-  .then(() => res.status(201).json(req.user.files[0]))
+  .then(() => res.status(201).json(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
@@ -92,8 +100,8 @@ function getUserFiles(req, res, next) {
   if (req.user && req.user.files.length > 0) {
     const files = req.user.files.map((fileObj) => {
       const file = {
-        id: fileObj._id,
-        name: fileObj.filename.split('/')[fileObj.filename.split('/').length - 1]
+        _id: fileObj._id,
+        filename: getFileName(fileObj.filename)
       };
       return file;
     });
