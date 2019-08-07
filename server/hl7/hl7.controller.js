@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     // Check if file with the same name already exist in the FS.
     fs.stat(`${uploadedFilePath}/${file.originalname}`, (err) => {
       if (err === null) {
-        const error = new APIError('A file with that name already exist', httpStatus.CONFLICT);
+        const error = new APIError('A file with that name already exists', httpStatus.CONFLICT);
         cb(error, false);
       }
       cb(null, `${file.originalname}`);
@@ -41,6 +41,14 @@ const upload = multer({ storage,
   }
 });
 
+/**
+ * Helper function that returns file name from full path
+ * @param filepath
+ * @returns {string}
+ */
+function getFileName(filepath) {
+  return filepath.split('/')[filepath.split('/').length - 1];
+}
 
 /**
  * Takes in a raw hl7 message or a list of raw messages and returns a list of the parsed message
@@ -80,7 +88,7 @@ function parseFile(req, res, next) {
       })
     ));
   })
-  .then(() => res.status(201).end())
+  .then(() => res.status(201).send(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
@@ -93,7 +101,7 @@ function getUserFiles(req, res, next) {
     const files = req.user.files.map((fileObj) => {
       const file = {
         id: fileObj._id,
-        name: fileObj.filename.split('/')[fileObj.filename.split('/').length - 1]
+        filename: getFileName(fileObj.filename)
       };
       return file;
     });
