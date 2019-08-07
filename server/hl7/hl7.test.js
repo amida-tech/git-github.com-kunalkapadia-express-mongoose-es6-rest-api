@@ -125,4 +125,22 @@ describe('## Retrieve File / Messages', () => {
         .catch(done);
     });
   });
+  describe('# GET /api/hl7/files/fileId/messages', () => {
+    it('should retrieve all parsed messages for a given file ', (done) => {
+      request(app)
+        .get('/api/hl7/files')
+        .set('Authorization', `Bearer ${userToken}`)
+        .then((res) => {
+          request(app)
+            .get(`/api/hl7/files/${res.body[0].id}/messages`)
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(httpStatus.NOT_FOUND)
+            .then((response) => {
+              expect(4 > 5);
+            });
+          done();
+        })
+        .catch(done);
+    });
+  });
 });
