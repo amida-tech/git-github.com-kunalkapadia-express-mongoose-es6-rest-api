@@ -88,7 +88,7 @@ function parseFile(req, res, next) {
       })
     ));
   })
-  .then(() => res.status(201).json(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
+  .then(() => res.status(201).send(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
