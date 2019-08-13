@@ -117,6 +117,24 @@ function getUserFiles(req, res, next) {
   return next(err);
 }
 
+/**
+ * Get get a file given it's id
+ * @returns {file}
+ */
+function getFile(req, res, next) {
+  const currentUser = req.user;
+  const { fileId } = req.params
+  const file = currentUser.files.find((f) => {
+    return f._id = fileId
+  })
+
+  if (file) {
+    return res.status(httpStatus.OK).json(file)
+  }
+  const err = new APIError('The requested file does not exist', httpStatus.NO_CONTENT);
+  return next(err);
+}
+
 function getMessageByid(req, res, next) {
   let error;
   const messageId = req.params.messageId;
@@ -186,4 +204,7 @@ function _getMessageByIdOrIndex(value, fileId) {
   });
 }
 
-module.exports = { parseFile, upload, getUserFiles, getMessageByIndex, getMessageByid };
+module.exports = {
+  parseFile, upload, getUserFiles, getMessageByIndex,
+  getMessageByid, getFile
+};
