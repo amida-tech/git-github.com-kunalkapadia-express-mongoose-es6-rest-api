@@ -125,7 +125,7 @@ function getFile(req, res, next) {
   const currentUser = req.user;
   const { fileId } = req.params
   const file = currentUser.files.find((f) => {
-    return f._id = fileId
+    return f._id == fileId
   })
 
   if (file) {
