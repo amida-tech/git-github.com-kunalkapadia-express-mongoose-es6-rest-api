@@ -119,8 +119,9 @@ describe('## Retrieve File / Messages', () => {
             .expect(httpStatus.OK)
             .then((response) => {
               expect(response.body.messageNumWithinFile).equal(0);
-            });
-          done();
+              done();
+            })
+          .catch(done);
         })
         .catch(done);
     });
@@ -134,11 +135,12 @@ describe('## Retrieve File / Messages', () => {
           request(app)
             .get(`/api/hl7/files/${res.body[0].id}/messages`)
             .set('Authorization', `Bearer ${userToken}`)
-            .expect(httpStatus.NOT_FOUND)
+            .expect(httpStatus.OK)
             .then((response) => {
-              expect(4 > 5);
-            });
-          done();
+              expect(response.body.length).to.equal(500);
+              done();
+            })
+            .catch(done);
         })
         .catch(done);
     });
