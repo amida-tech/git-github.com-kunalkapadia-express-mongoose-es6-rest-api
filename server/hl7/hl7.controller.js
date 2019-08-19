@@ -124,9 +124,7 @@ function getUserFiles(req, res, next) {
 function getFile(req, res, next) {
   const currentUser = req.user;
   const { fileId } = req.params;
-  const file = currentUser.files.find((f) => {
-    return f._id.toString() === fileId;
-  });
+  const file = currentUser.files.find(f => f._id.toString() === fileId);
 
   if (file) {
     return res.status(httpStatus.OK).json(file);
