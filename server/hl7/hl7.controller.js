@@ -123,15 +123,15 @@ function getUserFiles(req, res, next) {
  */
 function getFile(req, res, next) {
   const currentUser = req.user;
-  const { fileId } = req.params
+  const { fileId } = req.params;
   const file = currentUser.files.find((f) => {
-    return f._id === fileId
-  })
+    return f._id.toString() === fileId;
+  });
 
   if (file) {
-    return res.status(httpStatus.OK).json(file)
+    return res.status(httpStatus.OK).json(file);
   }
-  const err = new APIError('The requested file does not exist', httpStatus.NO_CONTENT);
+  const err = new APIError('The requested file does not exist', httpStatus.NOT_FOUND);
   return next(err);
 }
 
@@ -205,6 +205,10 @@ function _getMessageByIdOrIndex(value, fileId) {
 }
 
 module.exports = {
-  parseFile, upload, getUserFiles, getMessageByIndex,
-  getMessageByid, getFile
+  parseFile,
+  upload,
+  getUserFiles,
+  getMessageByIndex,
+  getMessageByid,
+  getFile
 };
