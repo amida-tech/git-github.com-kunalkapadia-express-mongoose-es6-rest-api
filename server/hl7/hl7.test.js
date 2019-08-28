@@ -129,6 +129,14 @@ describe('## Retrieve File / Messages', () => {
         .then(done)
         .catch(done);
     });
+    it('should fail to retrieve nonexistent file', (done) => {
+      request(app)
+        .get('/api/hl7/files/doesntexist')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(httpStatus.NOT_FOUND)
+        .then(() => done())
+        .catch(done);
+    });
   });
   describe('# GET /api/hl7/files/fileId/messages/messageIndex', () => {
     it('should retrieve first message using message index ', (done) => {
