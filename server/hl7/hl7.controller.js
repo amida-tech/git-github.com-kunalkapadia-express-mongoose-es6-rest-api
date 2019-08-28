@@ -127,7 +127,10 @@ function getFile(req, res, next) {
   const file = currentUser.files.find(f => f._id.toString() === fileId);
 
   if (file) {
-    return res.status(httpStatus.OK).json(file);
+    return res.status(httpStatus.OK).json({
+      id: file._id,
+      filename: getFileName(file.filename)
+    });
   }
   const err = new APIError('The requested file does not exist', httpStatus.NOT_FOUND);
   return next(err);
