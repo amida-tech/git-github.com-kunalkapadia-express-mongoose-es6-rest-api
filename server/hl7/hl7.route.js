@@ -12,6 +12,10 @@ router.route('/upload')
 router.route('/files')
   /** GET /api/hl7/files - Retrieves all user files */
   .get(hl7Ctrl.getUserFiles);
+router.route('/files/:fileId')
+  /** GET /api/hl7/files/fileId -
+   * Retrieves single file given it's id */
+  .get(hl7Ctrl.getFile);
 
 router.route('/files/:fileId/messages/:indexWithinFile')
   /** GET /api/hl7/files/fileId/messages/messageIndex -
