@@ -70,6 +70,11 @@ function parseFile(req, res, next) {
   }).catch(err =>
     next(new APIError(err, httpStatus.BAD_REQUEST))
   ).then((data) => {
+    if(!data.startsWith("MSH|")){
+      console.log("please upload a valid hl7 file");
+      throw new Error('Please upload an HL7 file');
+      return null;
+    }
     req.user.files.unshift({ filename: req.file.path });
     const newFile = req.user.files[0];
     return Promise.all([data, newFile, req.user.save()]);
@@ -91,7 +96,6 @@ function parseFile(req, res, next) {
   .then(() => res.status(201).send(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
   .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
-
 /**
  * Get list of user files
  * @returns {files[]}
