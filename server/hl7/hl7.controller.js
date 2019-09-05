@@ -70,10 +70,8 @@ function parseFile(req, res, next) {
   }).catch(err =>
     next(new APIError(err, httpStatus.BAD_REQUEST))
   ).then((data) => {
-    if(!data.startsWith("MSH|")){
-      console.log("please upload a valid hl7 file");
-      throw new Error('Please upload an HL7 file');
-      return null;
+    if (!data.startsWith('MSH|')) {
+      throw new Error('Please upload a valid HL7 file');
     }
     req.user.files.unshift({ filename: req.file.path });
     const newFile = req.user.files[0];
