@@ -31,6 +31,10 @@ const user = {
 };
 let userToken = '';
 before((done) => {
+  if(!fs.existsSync('data/hl7-uploads-test')) {
+    fs.mkdirSync('data/hl7-uploads-test')
+  }
+
   // create a user
   request(app)
     .post('/api/users')
