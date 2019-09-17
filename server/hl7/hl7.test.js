@@ -4,6 +4,7 @@ const httpStatus = require('http-status');
 const chai = require('chai'); // eslint-disable-line import/newline-after-import
 const expect = chai.expect;
 const app = require('../../index');
+const fs = require('fs');
 
 chai.config.includeStack = true;
 
@@ -11,6 +12,11 @@ chai.config.includeStack = true;
  * root level hooks
  */
 after((done) => {
+  // Deleting any sample HL7 message used for testing if they exist already before running tests
+  fs.unlinkSync('data/hl7-uploads-test/500HL7Messages.txt', (err) => {
+    if (err) throw err;
+    console.log('data/hl7-uploads-test/500HL7Messages.txt was deleted');
+  });
   // required because https://github.com/Automattic/mongoose/issues/1251#issuecomment-65793092
   mongoose.models = {};
   mongoose.modelSchemas = {};
@@ -25,6 +31,10 @@ const user = {
 };
 let userToken = '';
 before((done) => {
+  if(!fs.existsSync('data/hl7-uploads-test')) {
+    fs.mkdirSync('data/hl7-uploads-test')
+  }
+
   // create a user
   request(app)
     .post('/api/users')
@@ -46,7 +56,7 @@ before((done) => {
 
 describe('## File Upload', () => {
   describe('# POST /api/hl7/upload', () => {
-    it('should upload a file to /data/hl7-uploads', (done) => {
+    it('should upload a file to /data/hl7-uploads-test', (done) => {
       request(app)
         .post('/api/hl7/upload')
         .set('Authorization', `Bearer ${userToken}`)
