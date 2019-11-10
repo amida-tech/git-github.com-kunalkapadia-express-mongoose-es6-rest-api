@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const mongoose = require('mongoose');
 const request = require('supertest-as-promised');
 const httpStatus = require('http-status');
@@ -26,19 +28,17 @@ const user = {
 let userToken = '';
 before((done) => {
   // Delete the test file if it exists (else subsequent tests will fail)
-  const fs = require('fs');
-  const path = require('path');
   const jsonPath = path.join(__dirname, '..', '..', 'data', 'hl7-uploads', '500HL7Messages.txt');
   try {
-    if(fs.existsSync(jsonPath)) {
+    if (fs.existsSync(jsonPath)) {
       try {
         fs.unlinkSync(jsonPath);
-      } catch(err) {
-        console.error(err);
+      } catch (err) {
+        console.error(err); // eslint-disable-line no-console
       }
     }
-  } catch(err) {
-    console.error(err);
+  } catch (err) {
+    console.error(err); // eslint-disable-line no-console
   }
 
   // create a user
