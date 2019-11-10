@@ -25,6 +25,22 @@ const user = {
 };
 let userToken = '';
 before((done) => {
+  // Delete the test file if it exists (else subsequent tests will fail)
+  const fs = require('fs');
+  const path = require('path');
+  const jsonPath = path.join(__dirname, '..', '..', 'data', 'hl7-uploads', '500HL7Messages.txt');
+  try {
+    if(fs.existsSync(jsonPath)) {
+      try {
+        fs.unlinkSync(jsonPath);
+      } catch(err) {
+        console.error(err);
+      }
+    }
+  } catch(err) {
+    console.error(err);
+  }
+
   // create a user
   request(app)
     .post('/api/users')

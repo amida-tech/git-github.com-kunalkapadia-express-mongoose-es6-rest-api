@@ -86,10 +86,10 @@ function parseFile(req, res, next) {
         rawMessage,
         parsedMessage: parseRawHl7(rawMessage),
       })
-    ));
+      ));
   })
-  .then(() => res.status(201).send(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
-  .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
+    .then(() => res.status(201).send(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
+    .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
 /**
@@ -196,12 +196,12 @@ function _getMessageByIdOrIndex(value, fileId) {
         { fileId }
       ]
     })
-    .exec((err, message) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(message);
-    });
+      .exec((err, message) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(message);
+      });
   });
 }
 
