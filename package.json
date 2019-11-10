@@ -3,6 +3,11 @@
   "version": "5.0.0",
   "description": "A server side application for the Amida HL7-Telescoper Project",
   "author": "Perry Ogwuche <perry@amida.com>",
+  "contributors": [
+    "Alan Thompson <alan@amida.com>",
+    "Grant Orndorff <grant@amida.com>",
+    "James Zhu <james.zhu@amida.com>"
+  ],
   "main": "index.js",
   "private": false,
   "engines": {
