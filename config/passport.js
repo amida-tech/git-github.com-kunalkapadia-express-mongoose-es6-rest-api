@@ -1,6 +1,6 @@
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
+const { ExtractJwt } = require('passport-jwt');
 const httpStatus = require('http-status');
 
 const APIError = require('../server/helpers/APIError');
@@ -17,5 +17,5 @@ passport.use(new JwtStrategy(opts, (jwtPayload, done) => {
       return done(null, user);
     }
     return done(null, false);
-  }).catch(err => done(new APIError(err, httpStatus.UNAUTHORIZED), false));
+  }).catch((err) => done(new APIError(err, httpStatus.UNAUTHORIZED), false));
 }));

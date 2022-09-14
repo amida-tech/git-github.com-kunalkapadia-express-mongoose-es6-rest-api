@@ -1,8 +1,8 @@
-const User = require('./user.model');
 const bcrypt = require('bcrypt');
-const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 const jwt = require('jsonwebtoken');
+const APIError = require('../helpers/APIError');
+const User = require('./user.model');
 const config = require('../../config/config');
 
 function load(req, res, next, id) {
@@ -12,7 +12,7 @@ function load(req, res, next, id) {
       req.otherUser = user;
       return next();
     })
-    .catch(e => next(e));
+    .catch((e) => next(e));
 }
 
 /**
@@ -43,7 +43,8 @@ function login(req, res, next) {
         config.jwtSecret,
         {
           expiresIn: config.jwtExpTime
-        });
+        }
+      );
       return res.status(httpStatus.OK).json({ token });
     });
   });
@@ -88,14 +89,15 @@ function create(req, res, next) {
         email: req.body.email,
         password: hash
       });
+
       // Save user
       return user.save()
-        .then(savedUser =>
-          res.json({ username: savedUser.username,
-            email: savedUser.email,
-            _id: savedUser._id
-          }))
-        .catch(e => next(e));
+        .then((savedUser) => res.json({
+          username: savedUser.username,
+          email: savedUser.email,
+          _id: savedUser._id
+        }))
+        .catch((e) => next(e));
     });
   });
 }
@@ -112,8 +114,8 @@ function update(req, res, next) {
   user.email = req.body.email;
 
   user.save()
-    .then(savedUser => res.json(savedUser))
-    .catch(e => next(e));
+    .then((savedUser) => res.json(savedUser))
+    .catch((e) => next(e));
 }
 
 /**
@@ -125,8 +127,8 @@ function update(req, res, next) {
 function list(req, res, next) {
   const { limit = 50, skip = 0 } = req.query;
   User.list({ limit, skip })
-    .then(users => res.json(users))
-    .catch(e => next(e));
+    .then((users) => res.json(users))
+    .catch((e) => next(e));
 }
 
 /**
@@ -136,8 +138,10 @@ function list(req, res, next) {
 function remove(req, res, next) {
   const user = req.otherUser;
   user.remove()
-    .then(deletedUser => res.json(deletedUser))
-    .catch(e => next(e));
+    .then((deletedUser) => res.json(deletedUser))
+    .catch((e) => next(e));
 }
 
-module.exports = { load, get, create, update, list, remove, login };
+module.exports = {
+  load, get, create, update, list, remove, login
+};

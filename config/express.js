@@ -17,7 +17,6 @@ const routes = require('../index.route');
 const config = require('./config');
 const APIError = require('../server/helpers/APIError');
 
-
 const app = express();
 
 if (config.env === 'development') {
@@ -59,13 +58,16 @@ app.use('/api', routes);
 app.use((err, req, res, next) => {
   if (err instanceof expressValidation.ValidationError) {
     // validation error contains errors which is an array of error each containing message[]
-    const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
-    const error = new APIError(unifiedErrorMessage, err.status, true);
+    const unifiedErrorMessage = err.details.body.map((error) => error.message).join(' and ');
+    const error = new APIError(unifiedErrorMessage, err.statusCode, true);
     return next(error);
-  } else if (!(err instanceof APIError)) {
+  }
+
+  if (!(err instanceof APIError)) {
     const apiError = new APIError(err.message, err.status, err.isPublic);
     return next(apiError);
   }
+
   return next(err);
 });
 
@@ -87,7 +89,6 @@ app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
   res.status(err.status).json({
     message: err.isPublic ? err.message : httpStatus[err.status],
     stack: config.env === 'development' ? err.stack : {}
-  })
-);
+  }));
 
 module.exports = app;

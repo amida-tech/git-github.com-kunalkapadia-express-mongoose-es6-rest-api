@@ -1,7 +1,7 @@
-# Use latest node version 8.x
-FROM node:8.10.0
+# Use latest node maintenance LTS version 14.20.x
+FROM node:14.20.0-alpine3.16
 
-MAINTAINER Kunal Kapadia <kunalkapadia12@gmail.com>
+LABEL maintainer="Marc Sylvestre <marc.sylvestre@manhydra.com>"
 
 # create app directory in container
 RUN mkdir -p /app

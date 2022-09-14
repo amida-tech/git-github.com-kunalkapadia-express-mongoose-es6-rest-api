@@ -8,7 +8,7 @@ const debug = require('debug')('hl7-telescoper-api-server:index');
 
 // connect to mongo db
 const mongoUri = config.mongo.host;
-mongoose.connect(mongoUri, { keepAlive: 1, useNewUrlParser: true });
+mongoose.connect(mongoUri, { keepAlive: true, useNewUrlParser: true });
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${mongoUri}`);
 });

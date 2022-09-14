@@ -1,5 +1,5 @@
 const express = require('express');
-const validate = require('express-validation');
+const { validate } = require('express-validation');
 const paramValidation = require('../../config/param-validation');
 const userCtrl = require('./user.controller');
 
@@ -8,7 +8,7 @@ const router = new express.Router();
 router.route('/')
   /** GET /api/users - Get list of users */
   .get(userCtrl.list)
-/** POST /api/users - Create new user through signup */
+  /** POST /api/users - Create new user through signup */
   .post(validate(paramValidation.createUser), userCtrl.create);
 
 router.route('/:userId')
@@ -22,7 +22,7 @@ router.route('/:userId')
   .delete(userCtrl.remove);
 
 router.route('/login')
-/** POST /api/users/login - Logs in existing user */
+  /** POST /api/users/login - Logs in existing user */
   .post(userCtrl.login);
 
 router.param('userId', userCtrl.load);

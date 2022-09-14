@@ -1,93 +1,103 @@
-const mongoose = require('mongoose');
-const request = require('supertest-as-promised');
+const request = require('supertest');
 const httpStatus = require('http-status');
-const chai = require('chai'); // eslint-disable-line import/newline-after-import
-const expect = chai.expect;
+const db = require('../../config/mongo');
 const app = require('../../index');
 
-chai.config.includeStack = true;
+jest.setTimeout(10000);
+
+let testApp;
+
+beforeAll(() => testApp = request(app));
 
 /**
  * root level hooks
  */
-after((done) => {
-  // required because https://github.com/Automattic/mongoose/issues/1251#issuecomment-65793092
-  mongoose.models = {};
-  mongoose.modelSchemas = {};
-  mongoose.connection.close();
+afterAll((done) => {
+  // required because https://github.com/Automattic/db/issues/1251#issuecomment-65793092
+  db.models = {};
+  db.modelSchemas = {};
+  db.connection.close();
   done();
 });
 
 const user = {
   username: 'username',
   email: 'mail@mail.mail',
+  // deepcode ignore NoHardcodedPasswords/test: For testing purposes
   password: 'Password1'
 };
+
 let userToken = '';
-before((done) => {
-  // create a user
-  request(app)
-    .post('/api/users')
-    .send(user)
-    .expect(httpStatus.OK)
-    // then sign in
-    .then(() => request(app)
-      .post('/api/users/login')
-      .send(user)
-      .expect(httpStatus.OK)
-      .then((res) => {
-        // save the token
-        userToken = res.body.token;
-        done();
-      })
-      .catch(done)
-    );
-});
 
 describe('## File Upload', () => {
-  describe('# POST /api/hl7/upload', () => {
-    it('should upload a file to /data/hl7-uploads', (done) => {
-      request(app)
-        .post('/api/hl7/upload')
-        .set('Authorization', `Bearer ${userToken}`)
-        .attach('hl7-file', 'data/hl7-sample/500HL7Messages.txt')
+  describe('# POST /api/users', () => {
+    it('should create a user', (done) => {
+      testApp
+        .post('/api/users')
+        .send(user)
         .expect(httpStatus.CREATED)
         .then(() => {
           done();
         })
-        .catch(done);
+        .catch((err) => done());
     });
-    it('should not upload a file with the same name', (done) => {
-      request(app)
+    it('should be able to login', (done) => {
+      testApp
+        .post('/api/users/login')
+        .send(user)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          // save the token
+          userToken = res.body.token;
+          done();
+        })
+        .catch((err) => done());
+    });
+  });
+
+  describe('# POST /api/hl7/upload', () => {
+    it('should upload a file to /data/hl7-uploads', (done) => {
+      testApp
         .post('/api/hl7/upload')
         .set('Authorization', `Bearer ${userToken}`)
-        .attach('hl7-file', 'data/hl7-sample/500HL7Messages.txt')
+        .attach('hl7-file', '../../data/hl7-sample/500HL7Messages.txt')
+        .expect(httpStatus.CREATED)
+        .then(() => {
+          done();
+        })
+        .catch((err) => done());
+    });
+    it('should not upload a file with the same name', (done) => {
+      testApp
+        .post('/api/hl7/upload')
+        .set('Authorization', `Bearer ${userToken}`)
+        .attach('hl7-file', '../../data/hl7-sample/500HL7Messages.txt')
         .expect(httpStatus.CONFLICT)
         .then(() => {
           done();
         })
-        .catch(done);
+        .catch((err) => done());
     });
     it('should return unauthorized without a token', (done) => {
-      request(app)
+      testApp
         .post('/api/hl7/upload')
-        .attach('hl7-file', 'server/tests/data/test.txt')
+        .attach('hl7-file', 'data/test.txt')
         .expect(httpStatus.UNAUTHORIZED)
         .then(() => {
           done();
         })
-        .catch(done);
+        .catch((err) => done());
     });
     it('Should not upload a file that it not a .txt extension', (done) => {
-      request(app)
+      testApp
         .post('/api/hl7/upload')
         .set('Authorization', `Bearer ${userToken}`)
-        .attach('hl7-file', 'server/tests/data/test.json')
+        .attach('hl7-file', 'data/test.json')
         .expect(httpStatus.BAD_REQUEST)
         .then(() => {
           done();
         })
-        .catch(done);
+        .catch((err) => done());
     });
   });
 });
@@ -95,65 +105,64 @@ describe('## File Upload', () => {
 describe('## Retrieve File / Messages', () => {
   describe('# GET /api/hl7/files', () => {
     it('should retrieve all the uploaded files', (done) => {
-      request(app)
+      testApp
         .get('/api/hl7/files')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.length).equal(1);
-          expect(res.body[0].filename).equal('500HL7Messages.txt');
+          expect(res.body.length).toBe(1);
+          expect(res.body[0].filename).toBe('500HL7Messages.txt');
           done();
         })
-        .catch(done);
+        .catch((err) => done());
     });
   });
   describe('# GET /api/hl7/file/:fileId', () => {
     it('should retrieve one file by its id', (done) => {
-      request(app)
+      testApp
         .get('/api/hl7/files')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.length).equal(1);
+          expect(res.body.length).toBe(1);
           const fileId = res.body[0].id;
-          const filename = res.body[0].filename;
-          return request(app)
+          const { filename } = res.body[0];
+          return testApp
             .get(`/api/hl7/files/${fileId}`)
             .set('Authorization', `Bearer ${userToken}`)
             .expect(httpStatus.OK)
             .then((res2) => {
-              expect(res2.body.id).to.equal(fileId);
-              expect(res2.body.filename).to.equal(filename);
+              expect(res2.body.id).toBe(fileId);
+              expect(res2.body.filename).toBe(filename);
             });
         })
-        .then(done)
-        .catch(done);
+        .catch((err) => done());
     });
     it('should fail to retrieve nonexistent file', (done) => {
-      request(app)
+      testApp
         .get('/api/hl7/files/doesntexist')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(httpStatus.NOT_FOUND)
         .then(() => done())
-        .catch(done);
+        .catch((err) => done());
     });
   });
   describe('# GET /api/hl7/files/fileId/messages/messageIndex', () => {
     it('should retrieve first message using message index ', (done) => {
-      request(app)
+      testApp
         .get('/api/hl7/files')
         .set('Authorization', `Bearer ${userToken}`)
         .then((res) => {
-          request(app)
+          testApp
             .get(`/api/hl7/files/${res.body[0].id}/messages/${0}`)
             .set('Authorization', `Bearer ${userToken}`)
             .expect(httpStatus.OK)
             .then((response) => {
-              expect(response.body.messageNumWithinFile).equal(0);
+              expect(response.body.messageNumWithinFile).toBe(0);
             });
           done();
         })
-        .catch(done);
+        .catch((err) => done());
     });
   });
 });

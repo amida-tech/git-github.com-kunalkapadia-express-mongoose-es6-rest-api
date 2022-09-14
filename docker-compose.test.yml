@@ -1,12 +1,8 @@
-version: '2'
-
+version: '3.9'
 services:
   hl7-telescoper-api-server:
     build:
       context: .
-
-    image: hl7-telescoper-api-server:latest
-
     volumes:
       # Mounts the project directory on the host to /app inside the container,
       # allowing you to modify the code without having to rebuild the image.
@@ -23,20 +19,21 @@ services:
 
     # Overwrite any env var defined in .env file (if required)
     environment:
-      - MONGO_HOST=mongodb://mongo/hl7-telescoper-api-server
+      - NODE_ENV=test
+      - MONGO_HOST=mongodb://hl7-telescoper-db/hl7-telescoper
       - DEBUG=hl7-telescoper-api-server:*
 
     # Link to containers in another service.
     # Links also express dependency between services in the same way as depends_on,
     # so they determine the order of service startup.
     links:
-      - mongo
+      - hl7-telescoper-db
 
     command:
-      - /bin/bash
+      - /bin/sh
       - -c
-      - yarn --pure-lockfile && yarn test
-  mongo:
-    image: "mongo:3.4.2"
+      - yarn && yarn test
+  hl7-telescoper-db:
+    image: "mongo:4.2.22"
     ports:
       - "27017:27017"
