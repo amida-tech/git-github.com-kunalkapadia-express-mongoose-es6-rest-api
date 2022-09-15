@@ -1,5 +1,4 @@
-version: '2'
-
+version: '3.9'
 services:
   hl7-telescoper-api-server:
     build:
@@ -24,15 +23,15 @@ services:
 
     # Overwrite any env var defined in .env file (if required)
     environment:
-      - MONGO_HOST=mongodb://mongo/hl7-telescoper-api-server
+      - MONGO_HOST=mongodb://hl7-telescoper-db/hl7-telescoper
       - DEBUG=hl7-telescoper-api-server:*
 
     # Link to containers in another service.
     # Links also express dependency between services in the same way as depends_on,
     # so they determine the order of service startup.
     links:
-      - mongo
-  mongo:
-    image: "mongo:3.4"
+      - hl7-telescoper-db
+  hl7-telescoper-db:
+    image: "mongo:4.2.22"
     ports:
       - "27017:27017"

@@ -1,16 +1,15 @@
 const multer = require('multer');
 const mongoose = require('mongoose');
-const Message = require('./hl7.model');
-const APIError = require('../helpers/APIError');
 const httpStatus = require('http-status');
 const fs = require('fs');
-const Hl7Parser = require('health-level-seven-parser');
+const { Hl7Parser } = require('@amida-tech/hl7-parser');
+const APIError = require('../helpers/APIError');
+const Message = require('./hl7.model');
 const config = require('../../config/config');
 
-const hl7Parser = new Hl7Parser.Hl7Parser();
+const hl7Parser = new Hl7Parser();
 
 const uploadedFilePath = config.fileUploadPath;
-
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -28,7 +27,8 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage,
+const upload = multer({
+  storage,
   fileFilter(req, file, cb) {
     if (!file) {
       cb(new APIError('No file found', httpStatus.BAD_REQUEST), false);
@@ -64,12 +64,8 @@ function parseRawHl7(rawHl7Message) {
  */
 function parseFile(req, res, next) {
   new Promise((resolve, reject) => {
-    fs.readFile(req.file.path, 'utf8', (fsErr, data) =>
-      (fsErr ? reject(fsErr) : resolve(data))
-    );
-  }).catch(err =>
-    next(new APIError(err, httpStatus.BAD_REQUEST))
-  ).then((data) => {
+    fs.readFile(req.file.path, 'utf8', (fsErr, data) => (fsErr ? reject(fsErr) : resolve(data)));
+  }).catch((err) => next(new APIError(err, httpStatus.BAD_REQUEST))).then((data) => {
     req.user.files.unshift({ filename: req.file.path });
     const newFile = req.user.files[0];
     return Promise.all([data, newFile, req.user.save()]);
@@ -79,17 +75,16 @@ function parseFile(req, res, next) {
       .replace(/\r/g, '\n')
       .split(/\n{2,}/g);
 
-    return Message.create(hl7MessageList.filter(rawMessage => !!rawMessage)
+    return Message.create(hl7MessageList.filter((rawMessage) => !!rawMessage)
       .map((rawMessage, messageNumWithinFile) => ({
         fileId: file._id,
         messageNumWithinFile,
         rawMessage,
         parsedMessage: parseRawHl7(rawMessage),
-      })
-    ));
+      })));
   })
-  .then(() => res.status(201).send(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
-  .catch(err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
+    .then(() => res.status(201).send(`Successfully uploaded ${getFileName(req.user.files[0].filename)}`))
+    .catch((err) => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
 /**
@@ -124,7 +119,7 @@ function getUserFiles(req, res, next) {
 function getFile(req, res, next) {
   const currentUser = req.user;
   const { fileId } = req.params;
-  const file = currentUser.files.find(f => f._id.toString() === fileId);
+  const file = currentUser.files.find((f) => f._id.toString() === fileId);
 
   if (file) {
     return res.status(httpStatus.OK).json({
@@ -138,8 +133,8 @@ function getFile(req, res, next) {
 
 function getMessageByid(req, res, next) {
   let error;
-  const messageId = req.params.messageId;
-  const fileId = req.params.fileId;
+  const { messageId } = req.params;
+  const { fileId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(messageId)) {
     error = new APIError(`Invalid Message Index: ${messageId}`, httpStatus.BAD_REQUEST);
@@ -154,12 +149,12 @@ function getMessageByid(req, res, next) {
         res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message ID');
       }
     })
-    .catch((err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
+    .catch(((err) => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
 }
 
 function getMessageByIndex(req, res, next) {
   let error;
-  const fileId = req.params.fileId;
+  const { fileId } = req.params;
   const messageIndex = req.params.indexWithinFile;
 
   if (!Number.isInteger(parseInt(messageIndex, 10))) {
@@ -175,7 +170,7 @@ function getMessageByIndex(req, res, next) {
         res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message index');
       }
     })
-    .catch((err => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
+    .catch(((err) => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
 }
 
 function _getMessageByIdOrIndex(value, fileId) {
@@ -196,12 +191,12 @@ function _getMessageByIdOrIndex(value, fileId) {
         { fileId }
       ]
     })
-    .exec((err, message) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(message);
-    });
+      .exec((err, message) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(message);
+      });
   });
 }
 

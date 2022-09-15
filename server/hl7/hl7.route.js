@@ -4,7 +4,6 @@ const hl7Ctrl = require('./hl7.controller');
 
 const router = express.Router(); // eslint-disable-line new-cap
 
-
 router.route('/upload')
   /** POST /api/hl7/upload - Upload new HL7 document */
   .post(hl7Ctrl.upload.single('hl7-file'), hl7Ctrl.parseFile);
@@ -26,6 +25,5 @@ router.route('/files/:fileId/messages/:messageId')
   /** GET /api/hl7/files/fileId/messages/messageId -
    * Retrieves single message from file based on ID */
   .get(hl7Ctrl.getMessageByid);
-
 
 module.exports = router;

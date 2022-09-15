@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
-const mongoose = require('mongoose');
 const httpStatus = require('http-status');
+const mongoose = require('../../config/mongo');
 const APIError = require('../helpers/APIError');
 
 /**
