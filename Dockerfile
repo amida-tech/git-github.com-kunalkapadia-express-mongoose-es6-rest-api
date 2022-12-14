@@ -1,5 +1,5 @@
 # Use latest node maintenance LTS version 14.20.x
-FROM node:14.20.0-alpine3.16
+FROM node:fermium-alpine3.16
 
 LABEL maintainer="Marc Sylvestre <marc.sylvestre@manhydra.com>"
 
