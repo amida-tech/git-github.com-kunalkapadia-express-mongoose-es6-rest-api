@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const request = require('supertest');
 const httpStatus = require('http-status');
 const db = require('../../config/mongo');
@@ -7,7 +8,7 @@ jest.setTimeout(10000);
 
 let testApp;
 
-beforeAll(() => testApp = request(app));
+beforeAll(() => { testApp = request(app); });
 
 /**
  * root level hooks

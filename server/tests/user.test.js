@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const request = require('supertest');
 const httpStatus = require('http-status');
 const bcrypt = require('bcrypt');
@@ -8,7 +9,7 @@ jest.setTimeout(10000);
 
 let testApp;
 
-beforeAll(() => testApp = request(app));
+beforeAll(() => { testApp = request(app); });
 
 /**
  * root level hooks
@@ -25,7 +26,13 @@ describe('## User APIs', () => {
   let user = {
     username: 'testName',
     email: 'testName@gmail.com',
+    // file deepcode ignore NoHardcodedPasswords/test: For demonstration purposes
     password: 'testPassword1'
+  };
+
+  const userLogin = {
+    username: user.username,
+    password: user.password
   };
 
   describe('# POST /api/users', () => {
@@ -42,6 +49,20 @@ describe('## User APIs', () => {
             expect(response);
           });
           user = res.body;
+          done();
+        })
+        .catch((err) => done());
+    });
+  });
+
+  describe('# POST /api/users/login', () => {
+    it('should login user and return token', (done) => {
+      testApp
+        .post('/api/users/login')
+        .send(userLogin)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).toHaveProperty('token');
           done();
         })
         .catch((err) => done());
