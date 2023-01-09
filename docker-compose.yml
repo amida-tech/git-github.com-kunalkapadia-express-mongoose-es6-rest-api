@@ -32,6 +32,6 @@ services:
     links:
       - hl7-telescoper-db
   hl7-telescoper-db:
-    image: "mongo:4.2.22"
+    image: "mongo:latest"
     ports:
       - "27017:27017"

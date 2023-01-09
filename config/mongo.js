@@ -2,9 +2,8 @@ const mongoose = require('mongoose');
 const util = require('util');
 
 // config should be imported before importing any other file
-const config = require('./config');
-
 const debug = require('debug')('hl7-telescoper-api-server:index');
+const config = require('./config');
 
 // connect to mongo db
 const mongoUri = config.mongo.host;
