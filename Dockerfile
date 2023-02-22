@@ -1,5 +1,5 @@
 # Use latest node maintenance LTS version 16.19.x
-FROM node:16.19.0-alpine3.17
+FROM node:gallium-alpine
 
 LABEL maintainer="Marc Sylvestre <marc.sylvestre@manhydra.com>"
 
