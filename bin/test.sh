@@ -3,4 +3,4 @@
 # --build: Build images before starting containers.
 # --abort-on-container-exit: Stops all containers if any container is stopped
 docker-compose -f 'docker-compose.test.yml' -p ci up --build --abort-on-container-exit
-exit $(docker wait hl7-telescoper-api-server)
+exit $(docker wait ci_hl7-telescoper-api-server_1)
