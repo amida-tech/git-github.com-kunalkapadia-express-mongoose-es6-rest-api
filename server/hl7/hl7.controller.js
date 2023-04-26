@@ -144,10 +144,9 @@ function getMessageByid(req, res, next) {
   return _getMessageByIdOrIndex(messageId, fileId)
     .then((message) => {
       if (message) {
-        res.status(httpStatus.OK).json(message);
-      } else {
-        res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message ID');
+        return res.status(httpStatus.OK).json(message);
       }
+      return res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message ID');
     })
     .catch(((err) => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
 }
@@ -165,10 +164,9 @@ function getMessageByIndex(req, res, next) {
   return _getMessageByIdOrIndex(messageIndex, fileId)
     .then((message) => {
       if (message) {
-        res.status(httpStatus.OK).json(message);
-      } else {
-        res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message index');
+        return res.status(httpStatus.OK).json(message);
       }
+      return res.status(httpStatus.NOT_FOUND).json('Message Not found. Check message index');
     })
     .catch(((err) => next(new APIError(err, httpStatus.INTERNAL_SERVER_ERROR))));
 }
@@ -184,20 +182,17 @@ function _getMessageByIdOrIndex(value, fileId) {
       _id: value
     };
   }
-  return new Promise((resolve, reject) => {
-    Message.findOne({
-      $and: [
-        queryValue,
-        { fileId }
-      ]
-    })
-      .exec((err, message) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(message);
-      });
+
+  const messageQuery = Message.findOne({
+    $and: [
+      queryValue,
+      { fileId }
+    ]
   });
+
+  return messageQuery
+    .then((message) => message)
+    .catch(((err) => new APIError(err, httpStatus.INTERNAL_SERVER_ERROR)));
 }
 
 module.exports = {

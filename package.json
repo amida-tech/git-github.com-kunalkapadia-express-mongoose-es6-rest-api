@@ -1,6 +1,6 @@
 {
   "name": "hl7-telescoper-api-server",
-  "version": "5.1.2",
+  "version": "5.1.3",
   "description": "A server side application for the Amida HL7-Telescoper Project",
   "author": "Perry Ogwuche <perry@amida.com>",
   "main": "index.js",

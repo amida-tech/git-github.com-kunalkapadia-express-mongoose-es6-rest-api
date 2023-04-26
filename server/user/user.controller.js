@@ -24,30 +24,34 @@ function get(req, res) {
 }
 
 function login(req, res, next) {
-  User.findOne({ username: req.body.username }, (error, doc) => {
-    if (!doc) {
-      const error1 = new APIError('Error: Authorization Failed!', httpStatus.UNAUTHORIZED);
-      next(error1);
-      return;
-    }
-    bcrypt.compare(req.body.password, doc.password, (err, result) => {
-      if (err || !result) {
-        const error2 = new APIError('Error: Authorization Failed! ', httpStatus.UNAUTHORIZED);
-        return next(error2);
+  const userQuery = User.findOne({ username: req.body.username });
+
+  userQuery
+    .then((doc) => {
+      if (!doc) {
+        const error1 = new APIError('Error: Authorization Failed!', httpStatus.UNAUTHORIZED);
+        next(error1);
+        return;
       }
-      const token = jwt.sign(
-        {
-          username: doc.username,
-          id: doc._id
-        },
-        config.jwtSecret,
-        {
-          expiresIn: config.jwtExpTime
+      bcrypt.compare(req.body.password, doc.password, (err, result) => {
+        if (err || !result) {
+          const error2 = new APIError('Error: Authorization Failed! ', httpStatus.UNAUTHORIZED);
+          return next(error2);
         }
-      );
-      return res.status(httpStatus.OK).json({ token });
-    });
-  });
+        const token = jwt.sign(
+          {
+            username: doc.username,
+            id: doc._id
+          },
+          config.jwtSecret,
+          {
+            expiresIn: config.jwtExpTime
+          }
+        );
+        return res.status(httpStatus.OK).json({ token });
+      });
+    })
+    .catch((e) => next(e));
 }
 
 /**
@@ -62,44 +66,48 @@ function create(req, res, next) {
   TODO: Need to filter out password in login/signup express log
    */
   // First check if username or email already in database
-  User.find({
+  const userQuery = User.find({
     $or: [
       { email: req.body.email },
       { username: req.body.username }
     ]
-  }, (err, docs) => {
-    if (docs.length >= 1) {
-      if (docs[0].email === req.body.email) {
-        const error = new APIError(`Error: Account with email already exists! ${req.body.email}`, httpStatus.CONFLICT);
+  });
+
+  userQuery
+    .then((docs) => {
+      if (docs.length >= 1) {
+        if (docs[0].email === req.body.email) {
+          const error = new APIError(`Error: Account with email already exists! ${req.body.email}`, httpStatus.CONFLICT);
+          next(error);
+          return;
+        }
+        const error = new APIError(`Error: Account with username already exists! ${req.body.username}`, httpStatus.CONFLICT);
         next(error);
         return;
       }
-      const error = new APIError(`Error: Account with username already exists! ${req.body.username}`, httpStatus.CONFLICT);
-      next(error);
-      return;
-    }
-    // If user does not exist, hash password
-    bcrypt.hash(req.body.password, 10, (error, hash) => {
-      if (error) {
-        const error2 = new APIError('Error: Password hashing failed!', httpStatus.INTERNAL_SERVER_ERROR);
-        return next(error2);
-      }
-      const user = new User({
-        username: req.body.username,
-        email: req.body.email,
-        password: hash
-      });
+      // If user does not exist, hash password
+      bcrypt.hash(req.body.password, 10, (error, hash) => {
+        if (error) {
+          const error2 = new APIError('Error: Password hashing failed!', httpStatus.INTERNAL_SERVER_ERROR);
+          return next(error2);
+        }
+        const user = new User({
+          username: req.body.username,
+          email: req.body.email,
+          password: hash
+        });
 
-      // Save user
-      return user.save()
-        .then((savedUser) => res.json({
-          username: savedUser.username,
-          email: savedUser.email,
-          _id: savedUser._id
-        }))
-        .catch((e) => next(e));
-    });
-  });
+        // Save user
+        return user.save()
+          .then((savedUser) => res.json({
+            username: savedUser.username,
+            email: savedUser.email,
+            _id: savedUser._id
+          }))
+          .catch((e) => next(e));
+      });
+    })
+    .catch((e) => next(e));
 }
 
 /**
