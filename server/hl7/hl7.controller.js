@@ -2,6 +2,7 @@ const multer = require('multer');
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 const fs = require('fs');
+const path = require('path');
 const { Hl7Parser } = require('@amida-tech/hl7-parser');
 const APIError = require('../helpers/APIError');
 const Message = require('./hl7.model');
@@ -64,7 +65,8 @@ function parseRawHl7(rawHl7Message) {
  */
 function parseFile(req, res, next) {
   new Promise((resolve, reject) => {
-    fs.readFile(req.file.path, 'utf8', (fsErr, data) => (fsErr ? reject(fsErr) : resolve(data)));
+    const normalizedPath = path.normalize(req.file.path);
+    fs.readFile(normalizedPath, 'utf8', (fsErr, data) => (fsErr ? reject(fsErr) : resolve(data)));
   }).catch((err) => next(new APIError(err, httpStatus.BAD_REQUEST))).then((data) => {
     req.user.files.unshift({ filename: req.file.path });
     const newFile = req.user.files[0];
