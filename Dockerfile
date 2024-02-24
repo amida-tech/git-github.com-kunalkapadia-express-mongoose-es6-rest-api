@@ -1,5 +1,5 @@
 # Use latest node maintenance LTS version 16.19.x
-FROM node:18.18.2-bookworm-slim
+FROM node:18.19.0-bookworm-slim
 
 LABEL maintainer="Marc Sylvestre <marc.sylvestre@manhydra.com>"
 
